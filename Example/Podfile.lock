@@ -1,0 +1,64 @@
+PODS:
+  - LookinServer (1.2.8):
+    - LookinServer/Core (= 1.2.8)
+  - LookinServer/Core (1.2.8)
+  - MobileVLCKit (3.6.0)
+  - Playback (0.1.0):
+    - PlaybackFoundation
+    - XKit
+    - XUI
+  - PlaybackFoundation (0.1.0):
+    - MobileVLCKit (~> 3.6.0)
+    - XKit
+  - SnapKit (5.7.1)
+  - XKit (0.1.0)
+  - XUI (1.0.0):
+    - SnapKit
+    - XKit
+
+DEPENDENCIES:
+  - LookinServer
+  - Playback (from `../`)
+  - PlaybackFoundation (from `../`)
+  - SnapKit
+  - "XKit (from `git@github.com:xueqooy/XKit.git`, branch `develop`)"
+  - "XUI (from `git@github.com:xueqooy/XUI.git`, branch `develop`)"
+
+SPEC REPOS:
+  trunk:
+    - LookinServer
+    - MobileVLCKit
+    - SnapKit
+
+EXTERNAL SOURCES:
+  Playback:
+    :path: "../"
+  PlaybackFoundation:
+    :path: "../"
+  XKit:
+    :branch: develop
+    :git: "git@github.com:xueqooy/XKit.git"
+  XUI:
+    :branch: develop
+    :git: "git@github.com:xueqooy/XUI.git"
+
+CHECKOUT OPTIONS:
+  XKit:
+    :commit: 0c47432f903f8935fa42ac0d821e8ef087dd2a9d
+    :git: "git@github.com:xueqooy/XKit.git"
+  XUI:
+    :commit: 1e247947cd3ef5dacd7abf9bcc81b38af351ba67
+    :git: "git@github.com:xueqooy/XUI.git"
+
+SPEC CHECKSUMS:
+  LookinServer: 1b2b61c6402ae29fa22182d48f5cd067b4e99e80
+  MobileVLCKit: 8fe98ae53b7464f32e4bdf527cc7d53053e4d3a5
+  Playback: 5a3280bd00ab59aeee99609c0c4ba0fdace2a5a1
+  PlaybackFoundation: 169592343103800dc0388dbe4d8a1ae417dde0c1
+  SnapKit: d612e99e678a2d3b95bf60b0705ed0a35c03484a
+  XKit: 2e496c2315cc07109baf142f022969e54654476d
+  XUI: 4718830ab5c921ef0ca08398b90781bda9262be3
+
+PODFILE CHECKSUM: d2e58a3790d07eae10aad1fa68f593ff6b469ed2
+
+COCOAPODS: 1.14.3

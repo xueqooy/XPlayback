@@ -1,0 +1,22 @@
+use_frameworks!
+
+platform :ios, '13.0'
+
+target 'Playback_Example' do
+  pod 'PlaybackFoundation', :path => '../'
+  pod 'Playback', :path => '../'
+  
+  pod 'SnapKit'
+
+  pod 'XUI', :git => 'git@github.com:xueqooy/XUI.git', :branch => 'develop'
+  pod 'XKit', :git => 'git@github.com:xueqooy/XKit.git', :branch => 'develop'
+
+  pod 'LookinServer'
+  
+  
+  target 'Playback_Tests' do
+    inherit! :search_paths
+
+    
+  end
+end

@@ -1,0 +1,25 @@
+{
+  "sweetpad.workspacePath": "/Example/Playback.xcworkspace",
+  "[swift]": {
+    "editor.defaultFormatter": "sweetpad.sweetpad",
+    "editor.formatOnSave": true,
+  },
+  "sweetpad.format.path": "swiftformat",
+  // The "--quiet" flag is important here to ignore output that "swiftformat" writes to stderr.
+  // Otherwise, the extension thinks that the formatting failed and shows an annoying error message
+  "sweetpad.format.args": ["--quiet", "${file}"],
+
+  "media.player": {
+        "players": [
+            {
+                "name": "Spotify player",
+                "type": "spotify",
+            },
+
+            {
+                "name": "VLC player",
+                "type": "vlc",
+            }
+        ]
+    }
+}
