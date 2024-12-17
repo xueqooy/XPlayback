@@ -1,4 +1,4 @@
-![截屏2024-12-17 15 25 32](https://github.com/user-attachments/assets/185ce3e8-e1e1-4641-bb8c-14e9565b56c5)A playback service for streaming video/audio from local files, remote resources, or embedded content (e.g., YouTube videos).
+A playback service for streaming video/audio from local files, remote resources, or embedded content (e.g., YouTube videos).
 
  **1. Attach the player:**
 
