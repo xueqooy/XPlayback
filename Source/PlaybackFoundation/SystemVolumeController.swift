@@ -26,6 +26,7 @@ public class SystemVolumeController {
             AVAudioSession.sharedInstance().outputVolume
         }
         set {
+            startObservingAudioSession()
             volumeSlider?.value = newValue
         }
     }
@@ -119,12 +120,14 @@ public class SystemVolumeController {
         do {
             try AVAudioSession.sharedInstance().setActive(true)
 
-            audioSessionObservation = AVAudioSession.sharedInstance().publisher(for: \.outputVolume)
-                .sink { [weak self] volume in
-                    guard let self else { return }
+            if audioSessionObservation == nil {
+                audioSessionObservation = AVAudioSession.sharedInstance().publisher(for: \.outputVolume)
+                    .sink { [weak self] volume in
+                        guard let self else { return }
 
-                    self.volumeChangedSubject.send(volume)
-                }
+                        self.volumeChangedSubject.send(volume)
+                    }
+            }
         } catch {
             Logs.error("Failed to set audio session active: \(error)", tag: "Playback")
         }
