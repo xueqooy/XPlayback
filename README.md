@@ -50,3 +50,11 @@ A playback service for streaming video/audio from local files, remote resources,
  **8. Directly use the player:**
 
  If you want to manage the player yourself and do not want the player to be reused or removed when not needed, you can directly use the `HybridMediaPlayer` or `EmbedVideoPlayer`, which provide direct playback functionality.
+
+ ## Snapshot
+
+![截屏2024-12-17 15 23 17](https://github.com/user-attachments/assets/edff0a96-0439-4cbe-b4f1-779d387fb51e)
+
+![截屏2024-12-17 15 23 39](https://github.com/user-attachments/assets/542e1ded-f6e6-485a-b15a-9abdf56c6a2e)
+
+ 
