@@ -32,12 +32,12 @@ extension Resource {
             return value.rawValue.components(separatedBy: "_").last
             
         default:
-            let components = rawValue.components(separatedBy: " ")
-            if components.count == 2 {
-                return components.last
+            let ext = (rawValue as NSString).pathExtension
+            if ext.isEmpty {
+                return nil
+            } else {
+                return ext
             }
-            
-            return nil
         }
     }
     
@@ -54,6 +54,7 @@ enum AudioResource: String, Resource {
     case local_mp3
     case local_ogg
     case local_wav
+    case remote_aac = "http://streams.videolan.org/streams/aac/01_James_Bond_Theme__Monty_Norman_Orchestra.aac"
 }
 
 
@@ -63,4 +64,6 @@ enum VideoResource: String, Resource {
     case local_wmv
     case local_vob
     case youtube = "https://www.youtube.com/embed/Xk4HZfW6vK0"
+    case remote_mp4 = "http://streams.videolan.org/streams/mp4/Jago-Youtube.mp4"
+    case remote_avi = "http://streams.videolan.org/streams/avi/DomoDarko.avi"
 }
