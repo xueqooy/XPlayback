@@ -10,7 +10,7 @@ public enum AVPlayerSupportedFormat: String, CaseIterable {
     case mp4, mov, m4v, mpg, _3gp
 
     // Audio
-    case mp3, m4a, wav, aac, aif, aiff, caf
+    case mp3, m4a, wav, aac, aif, aiff, caf, flac
     
     public var mimeTypes: [String] {
         switch self {
@@ -36,6 +36,8 @@ public enum AVPlayerSupportedFormat: String, CaseIterable {
             ["audio/x-aiff", "audio/aiff"]
         case .caf:
             ["audio/x-caf"]
+        case .flac:
+            ["audio/flac"]
         }
     }
     
