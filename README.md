@@ -62,7 +62,7 @@ A playback service for streaming video/audio from local files, remote resources,
 
  ## License
 
-XKit is licensed under the MIT License. See [LICENSE](LICENSE) for more information.
+XPlayback is licensed under the MIT License. See [LICENSE](LICENSE) for more information.
 
 ## Contact
 
