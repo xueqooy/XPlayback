@@ -8,10 +8,14 @@
 import Combine
 
 public enum PlaybackState: Equatable {
+    /// The url has not been set
     case idle
+    /// The url has been set, but the media is not loaded yet
     case loading
+    /// The media is loaded and ready to play, but not yet started, the previous state should be `loading`
     case ready
     case playing
+    // The media is playing, but the playback is stalled, will resume when enough data is buffered
     case stalled
     case paused
     case failed
