@@ -17,11 +17,11 @@ public class TapGesturePlugin: NSObject, PlayerPlugin {
         } ?? false
     }
 
-    private var isFullscreenPlayButtonHidden: Bool {
-        fullscreenPlayButton.isHidden
+    private var isStartVideoButtonHidden: Bool {
+        startVideoButton.isHidden
     }
     
-    private lazy var fullscreenPlayButton = Button(image: Assets.image(named: "play.circle"))
+    private lazy var startVideoButton = Button(image: Assets.image(named: "play.circle"))
     private lazy var tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(Self.tapGestureAction))
     private lazy var doubleTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(Self.doubleTapGestureAction))
     private var autoHideTimer: XKit.Timer?
@@ -39,8 +39,8 @@ public class TapGesturePlugin: NSObject, PlayerPlugin {
         doubleTapGestureRecognizer.delegate = self
         tapGestureRecognizer.require(toFail: doubleTapGestureRecognizer)
 
-        fullscreenPlayButton.touchUpInsideAction = { [weak self] _ in
-            self?.startFullscreenPlay()
+        startVideoButton.touchUpInsideAction = { [weak self] _ in
+            self?.playInFullscreen()
         }
         
     }
@@ -55,7 +55,7 @@ public class TapGesturePlugin: NSObject, PlayerPlugin {
 
         controlView.addGestureRecognizer(doubleTapGestureRecognizer)
         controlView.addGestureRecognizer(tapGestureRecognizer)
-        controlView.addSubview(fullscreenPlayButton)
+        controlView.addSubview(startVideoButton)
         controlView.pendingTimeToSeekUpdatedPublisher
             .sink { [weak self] _ in
                 guard let self else { return }
@@ -83,15 +83,19 @@ public class TapGesturePlugin: NSObject, PlayerPlugin {
 
                 switch $0 {
                 case .idle, .loading, .ready:
+                    if self.player?.style.isFullscreen == false {
+                        self.startVideoButton.isHidden = false
+                    }
                     self.doubleTapGestureRecognizer.isEnabled = false
-                    self.fullscreenPlayButton.isHidden = false
                     self.hideViews(animated: false)
 
                 case .playing:
+                    self.startVideoButton.isHidden = true
                     self.doubleTapGestureRecognizer.isEnabled = true
                     self.startAutoHideTimer()
 
                 default:
+                    self.startVideoButton.isHidden = true
                     self.doubleTapGestureRecognizer.isEnabled = true
                     self.stopAutoHideTimer()
                     self.showViews()
@@ -111,7 +115,7 @@ public class TapGesturePlugin: NSObject, PlayerPlugin {
     public func detach() {
         stopAutoHideTimer()
         observations.removeAll(keepingCapacity: true)
-        fullscreenPlayButton.removeFromSuperview()
+        startVideoButton.removeFromSuperview()
         
         if let controlView {
             controlView.removeGestureRecognizer(doubleTapGestureRecognizer)
@@ -126,7 +130,7 @@ public class TapGesturePlugin: NSObject, PlayerPlugin {
     private func updateFullscreenPlayButtonLayout() {
         guard let player else { return }
 
-        fullscreenPlayButton.snp.remakeConstraints { make in
+        startVideoButton.snp.remakeConstraints { make in
             make.size.equalTo(CGSize.square(34))
 
             if player.style.isFullscreen {
@@ -161,13 +165,13 @@ public class TapGesturePlugin: NSObject, PlayerPlugin {
     }
 
     private func showViewsIfPossible() {
-        guard isFullscreenPlayButtonHidden else { return }
+        guard isStartVideoButtonHidden else { return }
 
         showViews()
     }
 
     private func showViews(animated: Bool = true) {
-        fullscreenPlayButton.isHidden = true
+        startVideoButton.isHidden = true
 
         var changed = false
 
@@ -213,8 +217,8 @@ public class TapGesturePlugin: NSObject, PlayerPlugin {
     @objc private func tapGestureAction(_ sender: UITapGestureRecognizer) {
         guard let controlView else { return }
 
-        if !isFullscreenPlayButtonHidden {
-            startFullscreenPlay()
+        if !isStartVideoButtonHidden {
+            playInFullscreen()
         } else if isControlDisplaying {
             // If the tap is on the edge view, do nothing
             for view in controlView.allEdgeViews {
@@ -240,7 +244,7 @@ public class TapGesturePlugin: NSObject, PlayerPlugin {
         }
     }
 
-    private func startFullscreenPlay() {
+    private func playInFullscreen() {
         guard let player else { return }
 
         showViews()
@@ -254,7 +258,7 @@ extension TapGesturePlugin: UIGestureRecognizerDelegate {
     public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
         guard let controlView, gestureRecognizer === doubleTapGestureRecognizer else { return false }
 
-        if isFullscreenPlayButtonHidden {
+        if isStartVideoButtonHidden {
             if isControlDisplaying {
                 // If the double tap is on the edge view, do nothing
                 for view in controlView.allEdgeViews {
