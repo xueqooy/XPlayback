@@ -79,11 +79,6 @@ public class AVPlaybackEngine: PlaybackEngine {
             stateQueue.sync { _state }
         }
         set {
-            if state == .loading && newValue == .paused {
-                // Ignore paused state when loading
-                return
-            }
-            
             if let view {
                 Queue.main.execute {
                     view.isCoverHidden = newValue != .idle && newValue != .loading && newValue != .ready
@@ -294,7 +289,7 @@ public class AVPlaybackEngine: PlaybackEngine {
                     view?.presentationSize = size
 
                 case let .playbackLikelyToKeepUpUpdated(likelyToKeepUp):
-                    if likelyToKeepUp && self.state != .playing {
+                    if likelyToKeepUp && self.state == .loading {
                         self.state = .ready
                     }
 
