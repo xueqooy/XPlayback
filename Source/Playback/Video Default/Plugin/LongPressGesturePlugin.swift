@@ -29,6 +29,8 @@ public class LongPressGesturePlugin: NSObject, PlayerPlugin {
     
     public func attach(to player: HybridMediaPlayer) {
         detach()
+
+        self.player = player
         
         let controlView = player.controlView
         self.controlView = controlView
@@ -48,7 +50,6 @@ public class LongPressGesturePlugin: NSObject, PlayerPlugin {
         indicator.removeFromSuperview()
         controlView?.removeGestureRecognizer(longPressGestureRecognizer)
         observation = nil
-        player = nil
         player = nil
     }
 
