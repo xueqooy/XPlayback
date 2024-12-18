@@ -59,6 +59,9 @@ A playback service for streaming video/audio from local files, remote resources,
 
 ![截屏2024-12-17 15 23 39](https://github.com/user-attachments/assets/542e1ded-f6e6-485a-b15a-9abdf56c6a2e)
 
+## Note
+
+This repository does not provide any installation methods like CocoaPods or Swift Package Manager. You are free to copy the codebase and make any custom modifications as per your requirements.
 
  ## License
 
