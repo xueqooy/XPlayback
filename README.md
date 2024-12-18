@@ -59,4 +59,13 @@ A playback service for streaming video/audio from local files, remote resources,
 
 ![截屏2024-12-17 15 23 39](https://github.com/user-attachments/assets/542e1ded-f6e6-485a-b15a-9abdf56c6a2e)
 
- 
+
+ ## License
+
+XKit is licensed under the MIT License. See [LICENSE](LICENSE) for more information.
+
+## Contact
+
+- GitHub: [https://github.com/xueqooy/XKit](https://github.com/xueqooy/XKit)
+- Email: xue_qooy@163.com
+
