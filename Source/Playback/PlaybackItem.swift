@@ -9,8 +9,8 @@ import XKit
 import UIKit
 
 /**
- Identify a video playback item
- Identical playing content is distinguished by `tag`, for example, different cells in the list play the same video.
+  Identify a playback item
+ Identical playing content is distinguished by `tag`, for example, different cells in the list play the same content.
  */
 public struct PlaybackItem: Hashable {
     public enum MediaType: String {
