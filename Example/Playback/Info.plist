@@ -26,8 +26,6 @@
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
-		<key>NSAllowsArbitraryLoadsForMedia</key>
-		<true/>
 	</dict>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Request to add video to album</string>
