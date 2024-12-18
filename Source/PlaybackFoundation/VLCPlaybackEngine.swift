@@ -245,7 +245,9 @@ public class VLCPlaybackEngine: PlaybackEngine {
 
                 switch $0 {
                 case .didFinishParsing:
-                    self.state = .ready
+                    if self.state == .loading {
+                        self.state = .ready
+                    }
 
                     if self.playWhenReady {
                         self.player.play()
@@ -268,7 +270,7 @@ public class VLCPlaybackEngine: PlaybackEngine {
     }
 
     private func maybeLoadDefaultCoverImage(with presentationSize: CGSize? = nil) {
-        guard let view, let mediaForThumbnail, coverURL == nil else { return }
+        guard view != nil, let mediaForThumbnail, coverURL == nil else { return }
 
         Task { [weak self] in
             guard let image = await Thumbnailer(media: mediaForThumbnail, size: presentationSize, cachePolicy: .readAndWrite).getThumbnail(), let self, self.state != .playing else {
