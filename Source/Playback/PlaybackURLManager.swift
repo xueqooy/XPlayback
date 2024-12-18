@@ -33,7 +33,7 @@ public protocol PlaybackItemParseable {
 }
 
 /**
- Parse and memory cache video resource URL.
+ Parse and memory cache resource URL.
  */
 public class PlaybackURLManager: NSObject {
     private class Cache {
