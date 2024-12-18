@@ -31,6 +31,7 @@ public class DefaultVideoControlView: UIView, PlaybackControllable {
     private lazy var playOrPauseButton = createButton(image: ButtonImage.play)
     private lazy var progressView = PlaybackProgressView(tintColor: .white)
     private lazy var speakerButton = createButton(image: ButtonImage.unmute)
+    private lazy var activityIndicator = ActivityIndicatorView(color: .white)
 
     private let pendingTimeToSeekUpdatedSubject = PassthroughSubject<TimeInterval, Never>()
     private let timeToSeekSubject = PassthroughSubject<TimeInterval, Never>()
@@ -91,14 +92,20 @@ public class DefaultVideoControlView: UIView, PlaybackControllable {
                 
                 self.playOrPauseButton.configuration.image = $0 == .playing || $0 == .stalled ? ButtonImage.pause : ButtonImage.play
                 self.progressView.state = switch $0 {
-    //            case .idle, .loading, .stalled:
-    //                PlaybackProgressView.State.loading
+               case .idle, .loading, .stalled:
+                   PlaybackProgressView.State.loading
 
                 case .failed:
                     PlaybackProgressView.State.failed
 
                 default:
                     PlaybackProgressView.State.normal
+                }
+                   
+                if self.progressView.state == .loading {
+                    self.showActivityIndicator()
+                } else {
+                    self.hideActivityIndicator()
                 }
             }
             .store(in: &playerObservations)
@@ -229,6 +236,22 @@ public class DefaultVideoControlView: UIView, PlaybackControllable {
         }
     }
 
+    private func showActivityIndicator() {
+        if activityIndicator.superview !== self {
+            addSubview(activityIndicator) {
+                $0.center.equalToSuperview()
+            }
+        }
+        
+        activityIndicator.isHidden = false
+        activityIndicator.startAnimating()
+    }
+    
+    private func hideActivityIndicator() {
+        activityIndicator.isHidden = true
+        activityIndicator.stopAnimating()
+    }
+    
     private func createButton(image: UIImage) -> Button {
         let button = Button(image: image, foregroundColor: .white)
         button.hitTestSlop = .init(top: -10, left: -6, bottom: -10, right: -6) // Horizontal slop flows spacing of stack (spacing / 2)
