@@ -247,7 +247,8 @@ public class AVPlaybackEngine: PlaybackEngine {
                                 if self.currentTime > 0 && self.currentTime < self.duration {
                                     self.playWhenReady = false
                                 }
-                            } else {
+                            } else if state != .loading {
+                                // Ignore paused state when loading
                                 self.state = .paused
                             }
                         }
