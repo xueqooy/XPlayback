@@ -32,7 +32,7 @@ import PlaybackFoundation
  playbackService.pauseAllPlayers()
  ```
 
- To stop the playback and remove the player from the container, call:
+ To stop the playback:
  ```swift
  playbackService.stopPlayer(for: item) 
  playbackService.stopAllPlayers()
@@ -243,17 +243,12 @@ import PlaybackFoundation
     }
 
     public func stopPlayer(for item: PlaybackItem) {
-        Asserts.mainThread()
-
         let player = playerCache.getPlayer(for: item)
         player?.stop()
     }
 
     public func stopAllPlayers() {
-        Asserts.mainThread()
-
         playerCache.players.forEach { $0.stop() }
-        playerCache = createPlayerCache()
     }
 
     // MARK: Private methods
