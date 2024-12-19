@@ -32,7 +32,7 @@ XPlayback is a hybrid media player designed to play audio, video, and embedded v
 
  Playback starts with user interaction, but you can programmatically pause it:
  ```swift
- playbackService.pause()
+ playbackService.pauseAllPlayers()
  ```
 
  To stop the playback and remove the player from the container, call:
@@ -83,9 +83,9 @@ XPlayback is a hybrid media player designed to play audio, video, and embedded v
  To customize the playback control plugins, create a new type that conforms to the `PlayerPluginSet` protocol and set it to 
  ```swift
  // for video
- playbackService.videoPlayerPluginSet
+ playbackService.preferences.videoPlayerPluginSet
  // for audio
- playbackService.audioPlayerPluginSet 
+ playbackService.preferences.audioPlayerPluginSet 
  ``` 
 
  **7 Customize item parser:**
@@ -97,7 +97,7 @@ XPlayback is a hybrid media player designed to play audio, video, and embedded v
  
  **8. Directly use the player:**
 
- If you want to manage the player yourself and do not want the player to be reused or removed when not needed, you can directly use the `HybridMediaPlayer` or `EmbedVideoPlayer`, which provide direct playback functionality.
+ If you want to manage the player yourself and do not want the player to be shared or removed when not needed, you can directly use the `HybridMediaPlayer` or `EmbedVideoPlayer`, which provide direct playback functionality.
 
  ```swift
  // Play video or audio
