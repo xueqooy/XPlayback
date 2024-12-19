@@ -217,7 +217,8 @@ public class VLCPlaybackEngine: PlaybackEngine {
                         self.state = .paused
 
                     case .stopped:
-                        self.state = .stopped
+                        // Stop state only changes to stopped when stop() is called
+                        break
 
                     case .error:
                         self.state = .failed
