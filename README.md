@@ -134,6 +134,6 @@ XPlayback is licensed under the MIT License. See [LICENSE](LICENSE) for more inf
 
 ## Contact
 
-- GitHub: [https://github.com/xueqooy/XKit](https://github.com/xueqooy/XKit)
+- GitHub: [https://github.com/xueqooy/XKit](https://github.com/xueqooy/XPlayback)
 - Email: xue_qooy@163.com
 
