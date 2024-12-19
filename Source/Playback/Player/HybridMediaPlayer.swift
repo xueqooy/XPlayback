@@ -76,19 +76,8 @@ public class HybridMediaPlayer: Player {
         set { fullscreenManager.shouldHideStatusBar = newValue }
     }
     
-    public var isPlayingChanged: ((any Player) -> Void)?
-    
-    public var isPlaying: Bool = false {
-        didSet {
-            guard oldValue != isPlaying else {
-                return
-            }
-            isPlayingChanged?(self)
-        }
-    }
-    
-    public var isStopped: Bool {
-        playbackState == .stopped
+    public var playbackStatePublisher: AnyPublisher<PlaybackState, Never> {
+        $playbackState.didChange
     }
 
     @EquatableState
@@ -268,7 +257,6 @@ public class HybridMediaPlayer: Player {
         case let .stateChanged(playbackState):
             Logs.info("Playback state: \(playbackState)", tag: "Playback")
             self.playbackState = playbackState
-            self.isPlaying = playbackState == .playing || playbackState == .stalled
         }
     }
 

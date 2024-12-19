@@ -417,6 +417,7 @@ public class AVPlaybackEngine: PlaybackEngine {
     }
 
     private func clearCurrentItem() {
+        state = .idle
         guard let asset else { return }
         itemObserver.item = nil
 

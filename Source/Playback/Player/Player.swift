@@ -7,6 +7,7 @@
 
 import UIKit
 import Combine
+import PlaybackFoundation
 
 public protocol Player: AnyObject {
     /// Asset url
@@ -16,11 +17,8 @@ public protocol Player: AnyObject {
     /// Video container view, should be weak reference. Set nil to remove from container view
     var containerView: UIView? { set get }
     
-    var isPlayingChanged: ((Player) -> Void)? {set get }
-    
-    var isPlaying: Bool { get }
-    
-    var isStopped: Bool { get }
+    var playbackStatePublisher: AnyPublisher<PlaybackState, Never> { get }
+    var playbackState: PlaybackState { get }
 
     func play()
     func pause()

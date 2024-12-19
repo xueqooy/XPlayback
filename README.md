@@ -5,7 +5,7 @@ XPlayback is a hybrid media player designed to play audio, video, and embedded v
 - **Audio and Video Playback:** Play audio and video from files or network resources.
 - **Embedded Video playback:** Play embedded videos from platforms like YouTube.
 - **Customizable Engine:** Modify the playback engine to suit your needs.
-- **Customizable Control Layer:** Tailor the control interface to your preferences.
+- **Customizable Control Layver:** Tailor the control interface to your preferences.
 - **Plugin Architecture:** Extend functionality with plugins.
 - **Screen Rotation Adaptation:** Automatically adapt to screen orientation changes.
 - **Gesture Controls:** Utilize single tap, double tap, long press, and drag gestures for intuitive control.
@@ -14,32 +14,29 @@ XPlayback is a hybrid media player designed to play audio, video, and embedded v
 
 ## Usage
 
- **1. Attach the player:**
+   **1. Attach the player:**
 
- - The player will share between the same item.
- - The player view size matches the container view.
- - Only one item can play at a time; playing a new item pauses others.
- - Previous players are removed from the container when a new player is attached.
- ```swift
- // Identical playing content is distinguished by `tag`, for example, different cells in the list play the same content.
- let playbackItem = PlaybackItem(type: .video, contentString: videoURLString, tag: tag)
- playbackService.attachPlayer(to: videoContainerView, with: playbackItem)
- ```
- You can also manually remove the player:
- ```swift
- playbackService.removePlayer(from: videoContainerView)
- ```
-
- Playback starts with user interaction, but you can programmatically pause it:
- ```swift
- playbackService.pauseAllPlayers()
- ```
-
- To stop the playback:
- ```swift
- playbackService.stopPlayer(for: item) 
- playbackService.stopAllPlayers()
- ```
+  - The player will share between the same item.
+  - The player view size matches the container view.
+  - Only one item can play at a time; playing a new item pauses others.
+  - Previous players are removed from the container when a new player is attached.
+  ```swift
+  // Identical playing content is distinguished by `tag`, for example, different cells in the list play the same content.
+  let playbackItem = PlaybackItem(type: .video, contentString: videoURLString, tag: tag)
+  playbackService.attachPlayer(to: videoContainerView, with: playbackItem)
+  
+  // Manually remove the player
+  playbackService.removePlayer(from: videoContainerView)
+  
+  // Pause or stop all player
+  playbackService.pauseAllPlayers()
+  playbackService.stopAllPlayers()
+ 
+  // Play, pause or stop the specific player
+  playbackService.playPlayer(for: item)
+  playbackService.pausePlayer(for: item)
+  playbackService.stopPlayer(for: item)
+  ```
 
  **2. Pause playback when the player moves off-screen in a scroll view:**
  ```swift

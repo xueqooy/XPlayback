@@ -11,105 +11,102 @@ import XKit
 import PlaybackFoundation
 
 /**
-**1. Attach the player:**
+  **1. Attach the player:**
 
- - The player will share between the same item.
- - The player view size matches the container view.
- - Only one item can play at a time; playing a new item pauses others.
- - Previous players are removed from the container when a new player is attached.
- ```swift
- // Identical playing content is distinguished by `tag`, for example, different cells in the list play the same content.
- let playbackItem = PlaybackItem(type: .video, contentString: videoURLString, tag: tag)
- playbackService.attachPlayer(to: videoContainerView, with: playbackItem)
- ```
- You can also manually remove the player:
- ```swift
- playbackService.removePlayer(from: videoContainerView)
- ```
-
- Playback starts with user interaction, but you can programmatically pause it:
- ```swift
- playbackService.pauseAllPlayers()
- ```
-
- To stop the playback:
- ```swift
- playbackService.stopPlayer(for: item) 
- playbackService.stopAllPlayers()
- ```
-
- **2. Pause playback when the player moves off-screen in a scroll view:**
- ```swift
- // for video
- playbackService.preferences.shouldAutoPauseVideoOnScrollView = true
- // for audio
- playbackService.preferences.shouldAutoPauseAudioOnScrollView = true
- ```
-
- **3. Adapt to device rotation:**
-
- If the app only supports portrait mode but you want to autorotate fullscreen when the device orientation changes:
- ```swift
- playbackService.preferences.orientationsForApplyingRotateTransform = [.landscapeLeft, .landscapeRight, .portraitUpsideDown]
- ```
-
- If the app supports all orientations, set:
- ```swift
- playbackService.preferences.orientationsForApplyingRotateTransform = []
- ```
-
- **4. Customize video presentation view:**
-
- To customize the video player view, implement a new class that conforms to the `VideoPresentable` protocol and set it to 
- ```swift
- playbackService.preferences.videoPresentationViewType
- ```
-
- **5 Customize playback control view:**
-
- To customize the playback control view, implement a new class that conforms to the `PlaybackControllable` protocol and set it to 
- ```swift
- // for video
- playbackService.preferences.videoControlType
- // for audio
- playbackService.preferences.audioControlType
- ```
-
- **6. Customize playback control plugins:**
-
- To customize the playback control plugins, create a new type that conforms to the `PlayerPluginSet` protocol and set it to 
- ```swift
- // for video
- playbackService.preferences.videoPlayerPluginSet
- // for audio
- playbackService.preferences.audioPlayerPluginSet 
- ``` 
-
- **7 Customize item parser:**
-
- To customize the item parser, implement a new class that conforms to the `PlaybackItemParseable` protocol and add it to 
- ```swift
- PlaybackURLManager.shared.additionalParsers
-```
+  - The player will share between the same item.
+  - The player view size matches the container view.
+  - Only one item can play at a time; playing a new item pauses others.
+  - Previous players are removed from the container when a new player is attached.
+  ```
+  // Identical playing content is distinguished by `tag`, for example, different cells in the list play the same content.
+  let playbackItem = PlaybackItem(type: .video, contentString: videoURLString, tag: tag)
+  playbackService.attachPlayer(to: videoContainerView, with: playbackItem)
+  
+  // Manually remove the player
+  playbackService.removePlayer(from: videoContainerView)
+  
+  // Pause or stop all player
+  playbackService.pauseAllPlayers()
+  playbackService.stopAllPlayers()
  
- **8. Directly use the player:**
+  // Play, pause or stop the specific player
+  playbackService.playPlayer(for: item)
+  playbackService.pausePlayer(for: item)
+  playbackService.stopPlayer(for: item)
+  ```
 
- If you want to manage the player yourself and do not want the player to be shared or removed when not needed, you can directly use the `HybridMediaPlayer` or `EmbedVideoPlayer`, which provide direct playback functionality.
+  **2. Pause playback when the player moves off-screen in a scroll view:**
+  ```
+  // for video
+  playbackService.preferences.shouldAutoPauseVideoOnScrollView = true
+  // for audio
+  playbackService.preferences.shouldAutoPauseAudioOnScrollView = true
+  ```
 
- ```swift
- // Play video or audio
- let hint = PlaybackHint(format: media.format, title: resource.title)
- let engineType: PlayerEngineType = media.isAVPlayerSupportedFormat ? .av : .vlc
- let player: HybridMediaPlayer = media.isAudio ? .defaultAudioPlayer(engineType: engineType) : .defaultVideoPlayer(engineType: engineType)
- player.hint = hint
- player.url = media.url
- player.containerView = contaienrView
- 
- // Play youtube embed video
- let player = EmbedVideoPlayer()
- player.url = youtubeEmbedURL
- player.containerView = contaienrView
+  **3. Adapt to device rotation:**
+
+  If the app only supports portrait mode but you want to autorotate fullscreen when the device orientation changes:
+  ```
+  playbackService.preferences.orientationsForApplyingRotateTransform = [.landscapeLeft, .landscapeRight, .portraitUpsideDown]
+  ```
+
+  If the app supports all orientations, set:
+  ```
+  playbackService.preferences.orientationsForApplyingRotateTransform = []
+  ```
+
+  **4. Customize video presentation view:**
+
+  To customize the video player view, implement a new class that conforms to the `VideoPresentable` protocol and set it to
+  ```
+  playbackService.preferences.videoPresentationViewType
+  ```
+
+  **5 Customize playback control view:**
+
+  To customize the playback control view, implement a new class that conforms to the `PlaybackControllable` protocol and set it to
+  ```
+  // for video
+  playbackService.preferences.videoControlType
+  // for audio
+  playbackService.preferences.audioControlType
+  ```
+
+  **6. Customize playback control plugins:**
+
+  To customize the playback control plugins, create a new type that conforms to the `PlayerPluginSet` protocol and set it to
+  ```
+  // for video
+  playbackService.preferences.videoPlayerPluginSet
+  // for audio
+  playbackService.preferences.audioPlayerPluginSet
+  ```
+
+  **7 Customize item parser:**
+
+  To customize the item parser, implement a new class that conforms to the `PlaybackItemParseable` protocol and add it to
+  ```
+  PlaybackURLManager.shared.additionalParsers
  ```
+  
+  **8. Directly use the player:**
+
+  If you want to manage the player yourself and do not want the player to be shared or removed when not needed, you can directly use the `HybridMediaPlayer` or `EmbedVideoPlayer`, which provide direct playback functionality.
+
+  ```
+  // Play video or audio
+  let hint = PlaybackHint(format: media.format, title: resource.title)
+  let engineType: PlayerEngineType = media.isAVPlayerSupportedFormat ? .av : .vlc
+  let player: HybridMediaPlayer = media.isAudio ? .defaultAudioPlayer(engineType: engineType) : .defaultVideoPlayer(engineType: engineType)
+  player.hint = hint
+  player.url = media.url
+  player.containerView = contaienrView
+  
+  // Play youtube embed video
+  let player = EmbedVideoPlayer()
+  player.url = youtubeEmbedURL
+  player.containerView = contaienrView
+  ```
  */
 @MainActor public class PlaybackService: NSObject {
     public struct Preferences {
@@ -167,6 +164,7 @@ import PlaybackFoundation
     private var scrollingObservation: AnyCancellable?
     private var audioInterruptedObservation: AnyCancellable?
     private var containerViewForItem = [PlaybackItem: Weak<UIView>]()
+    private let cancellableAssociation = Association<AnyCancellable>()
 
     /// Attach video player view to container view.
     ///
@@ -197,7 +195,7 @@ import PlaybackFoundation
 
         // Get player from cache or new
         var player = playerCache.getPlayer(for: item)
-        if player == nil /* || player?.isStopped == true */ {
+        if player == nil {
             player = createPlayer(for: result.type, item: item, hint: hint)
             playerCache.cachePlayer(player!, for: item)
         }
@@ -237,14 +235,29 @@ import PlaybackFoundation
             }
         }
     }
-
-    public func pauseAllPlayers() {
-        pausePlayers(exclusion: nil)
+    
+    public func playbackStatePublisher(for item: PlaybackItem) -> AnyPublisher<PlaybackState, Never>? {
+        let player = playerCache.getPlayer(for: item)
+        return player?.playbackStatePublisher
+    }
+    
+    public func playPlayer(for item: PlaybackItem) {
+        let player = playerCache.getPlayer(for: item)
+        player?.play()
+    }
+    
+    public func pausePlayer(for item: PlaybackItem) {
+        let player = playerCache.getPlayer(for: item)
+        player?.pause()
     }
 
     public func stopPlayer(for item: PlaybackItem) {
         let player = playerCache.getPlayer(for: item)
         player?.stop()
+    }
+    
+    public func pauseAllPlayers() {
+        pausePlayers(exclusion: nil)
     }
 
     public func stopAllPlayers() {
@@ -299,15 +312,19 @@ import PlaybackFoundation
             player = hybridPlayer
         }
 
-        player.isPlayingChanged = { [weak self] player in
-            if let self, player.isPlaying {
-                self.pausePlayers(exclusion: player)
-                self.isPlayingSubject.send(())
+        cancellableAssociation[player] = player.playbackStatePublisher
+            .sink { [weak player, weak self] in
+                guard let self, let player else { return }
+                
+                if $0.isPlayingOrStalled {
+                    self.pausePlayers(exclusion: player)
+                    self.isPlayingSubject.send(())
+                }
             }
-        }
+
         return player
     }
-
+    
     private func createPlayerCache() -> PlayerCache {
         let playerCache = PlayerCache()
         playerCache.playerDidRemove = { player, _ in

@@ -8,6 +8,8 @@
 import Foundation
 import XKit
 import WebKit
+import PlaybackFoundation
+import Combine
 
 /// Play embed video, e.g. youtube
 public class EmbedVideoPlayer: NSObject, Player {
@@ -63,14 +65,11 @@ public class EmbedVideoPlayer: NSObject, Player {
 
     public var url: URL? {
         didSet {
-            if isStopped {
-                return
-            }
             if url == nil {
-                isPlaying = false
-                webView?.isHidden = true
+                playbackState = .idle
+                webView.isHidden = true
             } else if oldValue != url {
-                isPlaying = false
+                playbackState = .loading
                 load()
             }
         }
@@ -78,24 +77,24 @@ public class EmbedVideoPlayer: NSObject, Player {
 
     public var hint: PlaybackHint?
 
-    public var isPlayingChanged: ((Player) -> Void)?
-
-    public private(set) var isPlaying: Bool = false {
+    public var playbackStatePublisher: AnyPublisher<PlaybackState, Never> {
+        $playbackState.didChange
+    }
+    
+    @EquatableState
+    public private(set) var playbackState: PlaybackState = .idle {
         didSet {
-            if oldValue == isPlaying {
-                return
-            }
-            isPlayingChanged?(self)
+            guard oldValue != playbackState else { return }
+            
+            Logs.info("Embed Video playback state: \(playbackState)", tag: "Playback")
         }
     }
-
-    public private(set) var isStopped: Bool = false
 
     // Video container view
     public weak var containerView: UIView? {
         didSet {
-            guard let containerView = containerView, let webView = webView else {
-                webView?.removeFromSuperview()
+            guard let containerView = containerView else {
+                webView.removeFromSuperview()
                 return
             }
 
@@ -105,7 +104,7 @@ public class EmbedVideoPlayer: NSObject, Player {
         }
     }
 
-    private lazy var webView: WKWebView? = {
+    private lazy var webView: WKWebView = {
         let configuration = WKWebViewConfiguration()
         configuration.allowsInlineMediaPlayback = true
         configuration.mediaTypesRequiringUserActionForPlayback = []
@@ -125,24 +124,26 @@ public class EmbedVideoPlayer: NSObject, Player {
     private lazy var messageHandler: WebMessageHandler = {
         let messageHandler = WebMessageHandler()
         messageHandler.messageReceived = { [weak self] message in
-            guard let self = self else {
+            guard let self else {
                 return
             }
             switch message.name {
             case Tool.playingMessageName:
-                self.isPlaying = true
-            case Tool.pauseMessageName, Tool.endedMessageName:
-                self.isPlaying = false
+                self.playbackState = .playing
+            case Tool.pauseMessageName:
+                if self.playbackState != .stopped {
+                    self.playbackState = .paused
+                }
+            case Tool.endedMessageName:
+                self.playbackState = .ended
             default: break
             }
-
-            Logs.info("Embed Video playback state: \(message.name)", tag: "Playback")
         }
         return messageHandler
     }()
 
     private func load() {
-        guard let webView = webView, let url = url else { return }
+        guard let url = url else { return }
 
         let urlString = url.absoluteString
 
@@ -167,35 +168,38 @@ public class EmbedVideoPlayer: NSObject, Player {
         let script = Tool.generateVideoScript { video in
             "\(video).play()"
         }
-        webView?.evaluateJavaScript(script)
+        webView.evaluateJavaScript(script)
     }
 
     public func pause() {
         let script = Tool.generateVideoScript { video in
             "\(video).pause()"
         }
-        webView?.evaluateJavaScript(script)
+        webView.evaluateJavaScript(script)
     }
 
+    public func stop() {
+        playbackState = .stopped
+        let script = Tool.generateVideoScript { video in
+            """
+            \(video).pause();
+            \(video).currentTime = 0;
+            """
+        }
+    }
+    
     public func enterFullscreen() {
         let script = Tool.generateVideoScript { video in
             "\(video).webkitEnterFullscreen()"
         }
-        webView?.evaluateJavaScript(script)
+        webView.evaluateJavaScript(script)
     }
     
     public func exitFullscreen() {
         let script = Tool.generateVideoScript { video in
             "\(video).webkitExitFullscreen()"
         }
-        webView?.evaluateJavaScript(script)
-    }
-
-    public func stop() {
-        isStopped = true
-        pause()
-        webView?.removeFromSuperview()
-        webView = nil
+        webView.evaluateJavaScript(script)
     }
 }
 
@@ -230,6 +234,7 @@ extension EmbedVideoPlayer: WKNavigationDelegate {
         webView.evaluateJavaScript(addVideoPlaybackStateListenerScript)
 
         webView.isHidden = false
+        playbackState = .ready
     }
 
     public func webView(

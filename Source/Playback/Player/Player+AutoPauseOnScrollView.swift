@@ -35,7 +35,7 @@ public extension Player {
             return
         }
 
-        guard !checkContainerVisibility(in: scrollView), isPlaying else {
+        guard !checkContainerVisibility(in: scrollView), playbackState.isPlayingOrStalled else {
             return
         }
 
