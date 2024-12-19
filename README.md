@@ -97,6 +97,21 @@ XPlayback is a hybrid media player designed to play audio, video, and embedded v
 
  If you want to manage the player yourself and do not want the player to be reused or removed when not needed, you can directly use the `HybridMediaPlayer` or `EmbedVideoPlayer`, which provide direct playback functionality.
 
+ ```swift
+ // Play video or audio
+ let hint = PlaybackHint(format: media.format, title: resource.title)
+ let engineType: PlayerEngineType = media.isAVPlayerSupportedFormat ? .av : .vlc
+ let player: HybridMediaPlayer = media.isAudio ? .defaultAudioPlayer(engineType: engineType) : .defaultVideoPlayer(engineType: engineType)
+ player.hint = hint
+ player.url = media.url
+ player.containerView = contaienrView
+ 
+ // Play youtube embed video
+ let player = EmbedVideoPlayer()
+ player.url = youtubeEmbedURL
+ player.containerView = contaienrView
+ ```
+
 ## Run Examples
 
 The local media file for Example can be configured using the `Resource.swift` file. To add a local file, place it in the sample directory and name it according to the enumeration value. For remote resources, simply define the enumeration value with the `rawValue` being the resource URL.
