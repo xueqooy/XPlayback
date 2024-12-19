@@ -20,6 +20,8 @@ XPlayback is a hybrid media player designed to play audio, video, and embedded v
  - Only one item can play at a time; playing a new item pauses others.
  - Previous players are removed from the container when a new player is attached.
  ```swift
+ // Identify a playback item
+ // Identical playing content is distinguished by `tag`, for example, different cells in the list play the same content.
  let playbackItem = PlaybackItem(type: .video, contentString: videoURLString, tag: tag)
  playbackService.attachPlayer(to: videoContainerView, with: playbackItem)
  ```
