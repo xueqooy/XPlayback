@@ -186,6 +186,7 @@ public class EmbedVideoPlayer: NSObject, Player {
             \(video).currentTime = 0;
             """
         }
+        webView.evaluateJavaScript(script)
     }
     
     public func enterFullscreen() {
