@@ -176,15 +176,20 @@ public class AVPlaybackEngine: PlaybackEngine {
         guard let imageGenerator else { return nil }
         imageGenerator.maximumSize = size
 
-        return await withCheckedContinuation { continuation in
-            let time = CMTimeMakeWithSeconds(time, preferredTimescale: 1000)
-            imageGenerator.generateCGImagesAsynchronously(forTimes: [NSValue(time: time)]) { _, image, _, _, _ in
-                if let image {
-                    continuation.resume(returning: UIImage(cgImage: image))
-                } else {
-                    continuation.resume(returning: nil)
+        return await withTaskCancellationHandler {
+            return await withCheckedContinuation { continuation in
+                let time = CMTimeMakeWithSeconds(time, preferredTimescale: 1000)
+                imageGenerator.generateCGImagesAsynchronously(forTimes: [NSValue(time: time)]) { _, image, _, _, _ in
+                    if let image {
+                        continuation.resume(returning: UIImage(cgImage: image))
+                    } else {
+                        continuation.resume(returning: nil)
+                    }
                 }
             }
+            
+        } onCancel: { [weak imageGenerator] in
+            imageGenerator?.cancelAllCGImageGeneration()
         }
     }
 
