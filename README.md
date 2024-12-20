@@ -128,6 +128,7 @@ The local media file for Example can be configured using the `Resource.swift` fi
 ## TODO
 - Now playing
 - Remote command control
+- SPM support
 
 ## License
 
