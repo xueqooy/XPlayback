@@ -1,3 +1,5 @@
+<img width="300" alt="截屏2024-12-20 14 59 26" src="https://github.com/user-attachments/assets/44189bca-2cf7-4ba3-bd26-fd0757ea5251" />
+
 XPlayback is a hybrid media player designed to play audio, video, and embedded videos (e.g., YouTube Embed).
 
 ## Features
