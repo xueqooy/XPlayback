@@ -125,6 +125,10 @@ The local media file for Example can be configured using the `Resource.swift` fi
 
 ![截屏2024-12-17 15 23 39](https://github.com/user-attachments/assets/542e1ded-f6e6-485a-b15a-9abdf56c6a2e)
 
+## TODO
+- Now playing
+- Remote command control
+
 ## License
 
 XPlayback is licensed under the MIT License. See [LICENSE](LICENSE) for more information.
