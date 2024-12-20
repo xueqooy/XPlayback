@@ -10,7 +10,7 @@ XPlayback is a hybrid media player designed to play audio, video, and embedded v
 - **Customizable Control Layver:** Tailor the control interface to your preferences.
 - **Plugin Architecture:** Extend functionality with plugins.
 - **Screen Rotation Adaptation:** Automatically adapt to screen orientation changes.
-- **Gesture Controls:** Utilize single tap, double tap, long press, and drag gestures for intuitive control.
+- **Gesture Controls:** Utilize single tap, double tap, long press, and drag gestures for intuitive control (Play/Pause, Fast forward, Seek and Preview, Birghtness, Volume).
 - **Fullscreen Playback:** Enjoy media in fullscreen mode.
 - **Seeking Video Preview:** Preview video thumbnails while seeking.
 
