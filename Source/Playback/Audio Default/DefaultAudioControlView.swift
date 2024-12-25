@@ -10,15 +10,13 @@ import UIKit
 import XUI
 
 public class DefaultAudioControlView: UIView, PlaybackControllable {
-    public private(set) var multiQualityAssetController: MultiQualityAssetController?
-
     private lazy var playOrPauseButton = createButton(image: ButtonImage.play)
     private lazy var progressView = PlaybackProgressView(tintColor: .black)
     private lazy var qualityButton: Button = {
         let backgroundConfig = BackgroundConfiguration(cornerStyle: .fixed(4), strokeColor: .black, strokeWidth: 1.5)
         return Button(configuration: .init(titleFont: Fonts.caption, titleColor: .black, contentInsets: .nondirectional(top: 3, left: 5, bottom: 3, right: 5), background: backgroundConfig)) { [weak self] in
-            guard let multiQualityAssetController = self?.multiQualityAssetController else { return }
-
+            guard let multiQualityAssetController = self?.player?.multiQualityAssetController else { return }
+            
             multiQualityAssetController.showMenu(from: $0)
         }
     }()
@@ -81,8 +79,6 @@ public class DefaultAudioControlView: UIView, PlaybackControllable {
         playerObservations.removeAll(keepingCapacity: true)
 
         self.player = player
-
-        multiQualityAssetController?.attach(to: player)
 
         player.$duration.didChange
             .sink { [weak self] in
