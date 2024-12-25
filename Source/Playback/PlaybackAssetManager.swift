@@ -134,6 +134,14 @@ public class PlaybackAssetManager: NSObject {
         if let cachedResult = cache.result(for: item) {
             return cachedResult
         }
+        
+        // Parse URL using additional parsers
+        for parser in additionalParsers {
+            if let result = await parser.parseItem(item) {
+                cache.setResult(result, for: item)
+                return result
+            }
+        }
 
         // Parse local file URL
         if let result = await localFileParser.parseItem(item) {
@@ -145,14 +153,6 @@ public class PlaybackAssetManager: NSObject {
         if item.mediaType == .video, let result = await embedParser.parseItem(item) {
             cache.setResult(result, for: item)
             return result
-        }
-
-        // Parse URL using additional parsers
-        for parser in additionalParsers {
-            if let result = await parser.parseItem(item) {
-                cache.setResult(result, for: item)
-                return result
-            }
         }
 
         if let url = URL(string: item.contentString) {

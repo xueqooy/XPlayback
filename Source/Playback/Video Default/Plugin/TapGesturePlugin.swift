@@ -55,6 +55,7 @@ public class TapGesturePlugin: NSObject, PlayerPlugin {
         controlView.addGestureRecognizer(doubleTapGestureRecognizer)
         controlView.addGestureRecognizer(tapGestureRecognizer)
         
+        hideViews(animated: false)
         startVideoButton.isHidden = false
         controlView.addSubview(startVideoButton)
         
@@ -87,7 +88,6 @@ public class TapGesturePlugin: NSObject, PlayerPlugin {
                 switch $0 {
                 case .idle, .loading, .ready:
                     self.doubleTapGestureRecognizer.isEnabled = false
-                    self.hideViews(animated: false)
 
                 case .playing, .stalled:
                     self.startVideoButton.isHidden = true
