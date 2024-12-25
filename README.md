@@ -106,6 +106,14 @@ XPlayback is a hybrid media player designed to play audio, video, and embedded v
  player.hint = hint
  player.url = media.url
  player.containerView = contaienrView
+
+ // Multi-quality asset
+ let multiQualityAsset = MultiQualityAsset(items: [
+   .init(url: url1, label: "720p"),
+   .init(url: url2, label: "1080p"),
+   .init(url: url3, label: "4K")
+ ], defaultIndex: 1)
+ player.multiQualityAssetController?.asset = multiQualityAsset
  
  // Play youtube embed video
  let player = EmbedVideoPlayer()
