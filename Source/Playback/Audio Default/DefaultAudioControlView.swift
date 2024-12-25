@@ -26,7 +26,7 @@ public class DefaultAudioControlView: UIView, PlaybackControllable {
     private var playerObservations = [AnyCancellable]()
     private var currentItemObservation: AnyCancellable?
 
-    public init(multiQualityAssetController _: MultiQualityAssetController? = nil) {
+    public init() {
         super.init(frame: .zero)
 
         let backgroundView = BackgroundView(configuration: .init(fillColor: Colors.background1, cornerStyle: .capsule))
