@@ -72,10 +72,10 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="eVg-IZ-ruJ" userLabel="AudioView">
-                                        <rect key="frame" x="20" y="90.333333333333343" width="350" height="33"/>
+                                        <rect key="frame" x="20" y="90.333333333333343" width="350" height="40"/>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
-                                            <constraint firstAttribute="height" constant="33" id="vDg-ae-nB2"/>
+                                            <constraint firstAttribute="height" constant="40" id="vDg-ae-nB2"/>
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="umO-WO-mmy" userLabel="VideoView">

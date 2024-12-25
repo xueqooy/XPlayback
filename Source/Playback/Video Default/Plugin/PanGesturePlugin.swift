@@ -6,11 +6,11 @@
 //
 
 import Combine
-import XUI
-import XKit
-import PlaybackFoundation
 import MediaPlayer
+import PlaybackFoundation
 import UIKit
+import XKit
+import XUI
 
 public class PanGesturePlugin: NSObject, PlayerPlugin {
     private(set) lazy var panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(Self.panGestureAction))
@@ -21,16 +21,16 @@ public class PanGesturePlugin: NSObject, PlayerPlugin {
     private weak var player: HybridMediaPlayer?
     private weak var controlView: PlaybackControllable?
     private var observations = [AnyCancellable]()
-    
-    public override init() {
+
+    override public init() {
         super.init()
-        
+
         panGestureRecognizer.delegate = self
     }
-    
+
     public func attach(to player: HybridMediaPlayer) {
         detach()
-        
+
         let controlView = player.controlView
         self.controlView = controlView
 
@@ -45,7 +45,7 @@ public class PanGesturePlugin: NSObject, PlayerPlugin {
                 self.panGestureRecognizer.isEnabled = isGestureEnabled
             }
             .store(in: &observations)
-        
+
         // Observe system volume change
         SystemVolumeController.shared.volumeChangedPublisher
             .sink { [weak self] value in
@@ -60,7 +60,7 @@ public class PanGesturePlugin: NSObject, PlayerPlugin {
             }
             .store(in: &observations)
     }
-    
+
     public func detach() {
         observations.removeAll(keepingCapacity: true)
         controlView?.removeGestureRecognizer(panGestureRecognizer)

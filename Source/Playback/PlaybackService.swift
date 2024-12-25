@@ -7,11 +7,11 @@
 
 import Combine
 import Foundation
-import XKit
 import PlaybackFoundation
+import XKit
 
 /**
-  **1. Attach the player:**
+ **1. Attach the player:**
 
   - The player will share between the same item.
   - The player view size matches the container view.
@@ -21,14 +21,14 @@ import PlaybackFoundation
   // Identical playing content is distinguished by `tag`, for example, different cells in the list play the same content.
   let playbackItem = PlaybackItem(type: .video, contentString: videoURLString, tag: tag)
   playbackService.attachPlayer(to: videoContainerView, with: playbackItem)
-  
+
   // Manually remove the player
   playbackService.removePlayer(from: videoContainerView)
-  
+
   // Pause or stop all player
   playbackService.pauseAllPlayers()
   playbackService.stopAllPlayers()
- 
+
   // Play, pause or stop the specific player
   playbackService.playPlayer(for: item)
   playbackService.pausePlayer(for: item)
@@ -86,9 +86,9 @@ import PlaybackFoundation
 
   To customize the item parser, implement a new class that conforms to the `PlaybackItemParseable` protocol and add it to
   ```
-  PlaybackURLManager.shared.additionalParsers
+  PlaybackAssetManager.shared.additionalParsers
  ```
-  
+
   **8. Directly use the player:**
 
   If you want to manage the player yourself and do not want the player to be shared or removed when not needed, you can directly use the `HybridMediaPlayer` or `EmbedVideoPlayer`, which provide direct playback functionality.
@@ -101,7 +101,15 @@ import PlaybackFoundation
   player.hint = hint
   player.url = media.url
   player.containerView = contaienrView
-  
+
+  // Multi-quality asset
+  let multiQualityAsset = MultiQualityAsset(items: [
+    .init(url: url1, label: "720p"),
+    .init(url: url2, label: "1080p"),
+    .init(url: url3, label: "4K")
+  ], defaultIndex: 1)
+  player.multiQualityAssetController?.asset = multiQualityAsset
+
   // Play youtube embed video
   let player = EmbedVideoPlayer()
   player.url = youtubeEmbedURL
@@ -117,6 +125,7 @@ import PlaybackFoundation
         public var videoPlayerPluginSet: PlayerPluginSet? = DefaultVideoPlayerPlugins.all
         public var audioControlType: PlaybackControllable.Type = DefaultAudioControlView.self
         public var audioPlayerPluginSet: PlayerPluginSet?
+        public var qualityMenuProviderType: QualityMenuProviding.Type? = DefaultQualityMenuProvider.self
         public var shouldAutoPauseVideoOnScrollView: Bool = true
         public var shouldAutoPauseAudioOnScrollView: Bool = false
     }
@@ -159,7 +168,7 @@ import PlaybackFoundation
 
     public private(set) lazy var playerCache: PlayerCache = createPlayerCache()
 
-    private var urlManager = PlaybackURLManager.shared
+    private var assetManager = PlaybackAssetManager.shared
     private let isPlayingSubject = PassthroughSubject<Void, Never>()
     private var scrollingObservation: AnyCancellable?
     private var audioInterruptedObservation: AnyCancellable?
@@ -178,7 +187,7 @@ import PlaybackFoundation
     @discardableResult
     public func attachPlayer(
         to containerView: UIView, with item: PlaybackItem, hint: PlaybackHint? = nil
-    ) async -> PlaybackURLResult? {
+    ) async -> PlaybackAssetResult? {
         // Remove previous player from container
         if containerView.playbackItem != item {
             removePlayer(from: containerView)
@@ -189,21 +198,33 @@ import PlaybackFoundation
         containerViewForItem[item] = Weak(value: containerView)
 
         // Parse url from content string (suspend point)
-        guard let result = await urlManager.parse(item) else {
+        guard let result = await assetManager.parse(item) else {
             return nil
         }
 
         // Get player from cache or new
         var player = playerCache.getPlayer(for: item)
         if player == nil {
-            player = createPlayer(for: result.type, item: item, hint: hint)
+            player = createPlayer(for: result.asset, item: item, hint: hint)
             playerCache.cachePlayer(player!, for: item)
         }
         playerCache.bringUpToDate(item)
 
         // Attach player to container
         player!.hint = hint
-        player!.url = result.url
+        switch result.asset {
+        case .embed, .local, .network:
+            player!.multiQualityAssetController?.asset = nil
+            player!.url = result.asset.url
+
+        case .localWithMultiQuality, .networkWithMultiQuality:
+            if let multiQualityAssetController = player!.multiQualityAssetController {
+                multiQualityAssetController.asset = result.asset.mutiQualityAsset
+            } else {
+                player!.url = result.asset.url
+            }
+        }
+
         if containerView.playbackItem == item {
             player!.containerView = containerViewForItem[item]?.value
 
@@ -235,17 +256,17 @@ import PlaybackFoundation
             }
         }
     }
-    
+
     public func playbackStatePublisher(for item: PlaybackItem) -> AnyPublisher<PlaybackState, Never>? {
         let player = playerCache.getPlayer(for: item)
         return player?.playbackStatePublisher
     }
-    
+
     public func playPlayer(for item: PlaybackItem) {
         let player = playerCache.getPlayer(for: item)
         player?.play()
     }
-    
+
     public func pausePlayer(for item: PlaybackItem) {
         let player = playerCache.getPlayer(for: item)
         player?.pause()
@@ -255,7 +276,7 @@ import PlaybackFoundation
         let player = playerCache.getPlayer(for: item)
         player?.stop()
     }
-    
+
     public func pauseAllPlayers() {
         pausePlayers(exclusion: nil)
     }
@@ -267,15 +288,15 @@ import PlaybackFoundation
     // MARK: Private methods
 
     private func createPlayer(
-        for urlType: PlaybackURLType, item: PlaybackItem, hint: PlaybackHint?
+        for asset: PlaybackAsset, item: PlaybackItem, hint: PlaybackHint?
     ) -> any Player {
         let player: any Player
 
-        switch urlType {
+        switch asset {
         case .embed:
             player = EmbedVideoPlayer()
 
-        case .file, .network:
+        default:
             let usesVLCEngine: Bool = if let format = hint?.format?.lowercased() {
                 !AVPlayerSupportedFormat.contains(format)
             } else {
@@ -307,7 +328,13 @@ import PlaybackFoundation
                 preferences.audioPlayerPluginSet
             }
 
-            let hybridPlayer = HybridMediaPlayer(engine: playbackEngine, controlView: controlView, pluginSet: playerPluginSet)
+            let qualityMenuProvider: QualityMenuProviding? = if let qualityMenuProviderType = preferences.qualityMenuProviderType {
+                qualityMenuProviderType.init()
+            } else {
+                nil
+            }
+
+            let hybridPlayer = HybridMediaPlayer(engine: playbackEngine, controlView: controlView, pluginSet: playerPluginSet, qualityMenuProvider: qualityMenuProvider)
             hybridPlayer.orientationsForApplyingRotateTransform = preferences.orientationsForApplyingRotateTransform
             player = hybridPlayer
         }
@@ -315,7 +342,7 @@ import PlaybackFoundation
         cancellableAssociation[player] = player.playbackStatePublisher
             .sink { [weak player, weak self] in
                 guard let self, let player else { return }
-                
+
                 if $0.isPlayingOrStalled {
                     self.pausePlayers(exclusion: player)
                     self.isPlayingSubject.send(())
@@ -324,7 +351,7 @@ import PlaybackFoundation
 
         return player
     }
-    
+
     private func createPlayerCache() -> PlayerCache {
         let playerCache = PlayerCache()
         playerCache.playerDidRemove = { player, _ in

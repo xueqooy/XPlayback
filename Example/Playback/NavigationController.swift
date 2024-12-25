@@ -16,7 +16,7 @@ class NavigationController: UINavigationController {
 //            return false
 //        }
 //    }
-//    
+//
 //    override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
 //        if UIDevice.current.userInterfaceIdiom == .pad {
 //            return .all
@@ -25,4 +25,3 @@ class NavigationController: UINavigationController {
 //        }
 //    }
 }
-

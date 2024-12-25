@@ -1,5 +1,5 @@
 //
-//  AVPlayerMediaFormat.swift
+//  AVPlayerSupportedFormat.swift
 //  Pods
 //
 //  Created by xueqooy on 2024/12/16.
@@ -11,7 +11,7 @@ public enum AVPlayerSupportedFormat: String, CaseIterable {
 
     // Audio
     case mp3, m4a, wav, aac, aif, aiff, caf, flac
-    
+
     public var mimeTypes: [String] {
         switch self {
         case .mp4:
@@ -40,22 +40,22 @@ public enum AVPlayerSupportedFormat: String, CaseIterable {
             ["audio/flac"]
         }
     }
-    
+
     public static func contains(_ format: String) -> Bool {
         let matchFormat = allCases
             .lazy
             .map { $0.rawValue.lowercased() }
             .contains(format.lowercased())
-        
+
         if matchFormat {
             return true
         }
-        
+
         let matchMimeType = allCases
             .lazy
             .flatMap { $0.mimeTypes }
             .contains(format)
-        
+
         return matchMimeType
     }
 }

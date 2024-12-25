@@ -11,17 +11,17 @@ class DemoListViewController: UITableViewController {
     struct Demo {
         let title: String
         let resource: (any Resource)?
-        
+
         init(title: String, resource: (any Resource)? = nil) {
             self.title = title
             self.resource = resource
         }
     }
-    
+
     private let demos: [Demo] = [
-        .init(title: "Posts")
+        .init(title: "Posts"),
     ] + VideoResource.allCases.map { .init(title: $0.rawValue, resource: $0) }
-    + AudioResource.allCases.map { .init(title: $0.rawValue, resource: $0) }
+        + AudioResource.allCases.map { .init(title: $0.rawValue, resource: $0) }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -52,7 +52,7 @@ class DemoListViewController: UITableViewController {
         tableView.deselectRow(at: indexPath, animated: true)
 
         let viewController: UIViewController
-        
+
         let demo = demos[indexPath.row]
         if demo.resource == nil {
             viewController = PostsViewController.instantiate()

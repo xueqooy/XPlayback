@@ -5,8 +5,8 @@
 //  Created by xueqooy on 2024/12/2.
 //
 
-import XUI
 import UIKit
+import XUI
 
 class SeekingPreviewView: UIView {
     var image: UIImage? {

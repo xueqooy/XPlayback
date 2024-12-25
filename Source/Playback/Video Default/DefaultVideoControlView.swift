@@ -6,13 +6,12 @@
 //
 
 import Combine
-import XUI
-import XKit
 import PlaybackFoundation
 import UIKit
+import XKit
+import XUI
 
 public class DefaultVideoControlView: UIView, PlaybackControllable {
-
     public var pendingTimeToSeekUpdatedPublisher: AnyPublisher<TimeInterval, Never> {
         pendingTimeToSeekUpdatedSubject.eraseToAnyPublisher()
     }
@@ -20,13 +19,22 @@ public class DefaultVideoControlView: UIView, PlaybackControllable {
     public var timeToSeekPublisher: AnyPublisher<TimeInterval, Never> {
         timeToSeekSubject.eraseToAnyPublisher()
     }
-    
+
     public var topView: UIView? { topBar }
     public var bottomView: UIView? { bottomBar }
 
     private lazy var topBar: UIView = ControlBar(position: .top)
     private lazy var bottomBar: UIView = ControlBar(position: .bottom)
-    private lazy var titleLabel = UILabel(textColor: .white, font: Fonts.body2Bold)
+    private lazy var titleLabel = UILabel(textColor: .white, font: Fonts.body3Bold)
+    private lazy var qualityButton: Button = {
+        let backgroundConfig = BackgroundConfiguration(cornerStyle: .fixed(4), strokeColor: .white, strokeWidth: 1.5)
+        return Button(configuration: .init(titleFont: Fonts.caption, titleColor: .white, contentInsets: .nondirectional(top: 3, left: 5, bottom: 3, right: 5), background: backgroundConfig)) { [weak self] in
+            guard let multiQualityAssetController = self?.player?.multiQualityAssetController else { return }
+
+            multiQualityAssetController.showMenu(from: $0)
+        }
+    }()
+
     private lazy var fullscreenButton = createButton(image: ButtonImage.expand)
     private lazy var playOrPauseButton = createButton(image: ButtonImage.play)
     private lazy var progressView = PlaybackProgressView(tintColor: .white)
@@ -35,12 +43,11 @@ public class DefaultVideoControlView: UIView, PlaybackControllable {
 
     private let pendingTimeToSeekUpdatedSubject = PassthroughSubject<TimeInterval, Never>()
     private let timeToSeekSubject = PassthroughSubject<TimeInterval, Never>()
-
     private weak var player: HybridMediaPlayer?
-    private var playerObservations = [AnyCancellable]()
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    private var observations = [AnyCancellable]()
+
+    public init() {
+        super.init(frame: .zero)
 
         setupTopBar()
         setupBottomBar()
@@ -52,48 +59,48 @@ public class DefaultVideoControlView: UIView, PlaybackControllable {
     }
 
     public func attach(to player: HybridMediaPlayer) {
-        playerObservations.removeAll(keepingCapacity: true)
-        
+        observations.removeAll(keepingCapacity: true)
+
         self.player = player
-        
+
         player.$style.didChange
             .sink { [weak self] in
                 self?.updateStyle($0)
             }
-            .store(in: &playerObservations)
-        
+            .store(in: &observations)
+
         player.$duration.didChange
             .sink { [weak self] in
                 self?.progressView.timeInfo.duration = $0
             }
-            .store(in: &playerObservations)
-        
+            .store(in: &observations)
+
         player.$currentTime.didChange
             .sink { [weak self] in
                 self?.progressView.timeInfo.currentTime = $0
             }
-            .store(in: &playerObservations)
-        
+            .store(in: &observations)
+
         player.$bufferedPosition.didChange
             .sink { [weak self] in
                 self?.progressView.timeInfo.bufferedPosition = $0
             }
-            .store(in: &playerObservations)
-        
+            .store(in: &observations)
+
         player.$isMuted.didChange
             .sink { [weak self] in
                 self?.speakerButton.configuration.image = $0 ? ButtonImage.mute : ButtonImage.unmute
             }
-            .store(in: &playerObservations)
-        
+            .store(in: &observations)
+
         player.$playbackState.didChange
             .sink { [weak self] in
                 guard let self else { return }
-                
+
                 self.playOrPauseButton.configuration.image = $0 == .playing || $0 == .stalled ? ButtonImage.pause : ButtonImage.play
                 self.progressView.state = switch $0 {
-               case .idle, .loading, .stalled:
-                   PlaybackProgressView.State.loading
+                case .idle, .loading, .stalled:
+                    PlaybackProgressView.State.loading
 
                 case .failed:
                     PlaybackProgressView.State.failed
@@ -101,24 +108,39 @@ public class DefaultVideoControlView: UIView, PlaybackControllable {
                 default:
                     PlaybackProgressView.State.normal
                 }
-                   
+
                 if self.progressView.state == .loading {
                     self.showActivityIndicator()
                 } else {
                     self.hideActivityIndicator()
                 }
             }
-            .store(in: &playerObservations)
-        
+            .store(in: &observations)
+
         player.$hint.didChange
             .sink { [weak self] hint in
                 guard let self else { return }
-                
+
                 self.titleLabel.text = hint?.title
             }
-            .store(in: &playerObservations)
+            .store(in: &observations)
+
+        if let multiQualityAssetController = player.multiQualityAssetController {
+            multiQualityAssetController.$currentItem.didChange
+                .sink { [weak self] in
+                    guard let self else { return }
+
+                    if let currentItem = $0 {
+                        self.qualityButton.isHidden = false
+                        self.qualityButton.configuration.title = currentItem.shortLabel ?? currentItem.label
+                    } else {
+                        self.qualityButton.isHidden = true
+                    }
+                }
+                .store(in: &observations)
+        }
     }
-    
+
     public func startSeeking(with value: Float?) {
         if let value {
             progressView.sendActionsToSlider(for: .valueChanged, with: value)
@@ -126,16 +148,19 @@ public class DefaultVideoControlView: UIView, PlaybackControllable {
             progressView.sendActionsToSlider(for: .touchDown)
         }
     }
-    
+
     public func endSeeking() {
         progressView.sendActionsToSlider(for: .touchCancel)
     }
-    
+
     private func setupTopBar() {
         (topBar as! ControlBar).stackView.populate {
             titleLabel
-            
+
             SpacerView.flexible()
+
+            qualityButton
+                .settingHidden(true)
 
             fullscreenButton
         }
@@ -242,16 +267,16 @@ public class DefaultVideoControlView: UIView, PlaybackControllable {
                 $0.center.equalToSuperview()
             }
         }
-        
+
         activityIndicator.isHidden = false
         activityIndicator.startAnimating()
     }
-    
+
     private func hideActivityIndicator() {
         activityIndicator.isHidden = true
         activityIndicator.stopAnimating()
     }
-    
+
     private func createButton(image: UIImage) -> Button {
         let button = Button(image: image, foregroundColor: .white)
         button.hitTestSlop = .init(top: -10, left: -6, bottom: -10, right: -6) // Horizontal slop flows spacing of stack (spacing / 2)
@@ -280,6 +305,7 @@ private extension DefaultVideoControlView {
 }
 
 // MARK: - PlaybackControlBar
+
 private class ControlBar: UIView {
     enum Position {
         case top, bottom
@@ -298,7 +324,7 @@ private class ControlBar: UIView {
         }
     }
 
-    let stackView = HStackView(alignment: .center, spacing: .XUI.spacing3, layoutMargins: .init(top: 0, left: .XUI.spacing3, bottom: 0, right: .XUI.spacing3))
+    let stackView = HStackView(alignment: .center, spacing: .XUI.spacing3)
         .settingHeightConstraint(44)
 
     let position: Position
@@ -334,7 +360,7 @@ private class ControlBar: UIView {
         switch edgeMode {
         case .respectSafeArea:
             stackView.snp.remakeConstraints { make in
-                make.left.right.equalTo(self.safeAreaLayoutGuide)
+                make.left.right.equalTo(self.safeAreaLayoutGuide).inset(CGFloat.XUI.spacing3)
 
                 switch position {
                 case .top:
@@ -348,7 +374,7 @@ private class ControlBar: UIView {
         case .respectLayoutMargins:
             insetsLayoutMarginsFromSafeArea = false
             stackView.snp.remakeConstraints { make in
-                make.left.right.equalTo(self.layoutMarginsGuide)
+                make.left.right.equalTo(self.layoutMarginsGuide).inset(CGFloat.XUI.spacing3)
 
                 switch position {
                 case .top:

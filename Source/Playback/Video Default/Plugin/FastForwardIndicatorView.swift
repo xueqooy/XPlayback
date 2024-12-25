@@ -5,8 +5,8 @@
 //  Created by xueqooy on 2024/12/3.
 //
 
-import XUI
 import UIKit
+import XUI
 
 class FastForwardIndicatorView: UIView {
     var rate: Float = 0 {

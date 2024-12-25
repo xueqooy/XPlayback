@@ -6,8 +6,8 @@
 //
 
 import Combine
-import XKit
 import Foundation
+import XKit
 
 private let scrollingObservationAssociation = Association<AnyCancellable>()
 

@@ -6,8 +6,8 @@
 //
 
 import Combine
-import XKit
 import MobileVLCKit
+import XKit
 
 private let vlcVolumeMax: Float = 200
 private let vlcVolumeMin: Float = 0
@@ -82,7 +82,7 @@ public class VLCPlaybackEngine: PlaybackEngine {
                     view.isCoverHidden = newValue != .idle && newValue != .loading && newValue != .ready
                 }
             }
-    
+
             stateQueue.execute(.asyncBarrier) { [weak self] in
                 guard let self, self._state != newValue else { return }
 
@@ -286,7 +286,7 @@ public class VLCPlaybackEngine: PlaybackEngine {
 
     private func maybeLoadCustomCoverImage() {
         guard let view else { return }
-        
+
         if let coverURL {
             view.loadCoverImage(from: coverURL)
         } else {

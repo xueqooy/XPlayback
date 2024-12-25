@@ -21,7 +21,7 @@ public enum PlaybackState: Equatable {
     case failed
     case stopped
     case ended
-    
+
     public var isPlayingOrStalled: Bool {
         self == .playing || self == .stalled
     }

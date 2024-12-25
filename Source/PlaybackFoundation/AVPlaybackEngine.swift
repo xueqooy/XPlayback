@@ -177,7 +177,7 @@ public class AVPlaybackEngine: PlaybackEngine {
         imageGenerator.maximumSize = size
 
         return await withTaskCancellationHandler {
-            return await withCheckedContinuation { continuation in
+            await withCheckedContinuation { continuation in
                 let time = CMTimeMakeWithSeconds(time, preferredTimescale: 1000)
                 imageGenerator.generateCGImagesAsynchronously(forTimes: [NSValue(time: time)]) { _, image, _, _, _ in
                     if let image {
@@ -187,7 +187,7 @@ public class AVPlaybackEngine: PlaybackEngine {
                     }
                 }
             }
-            
+
         } onCancel: { [weak imageGenerator] in
             imageGenerator?.cancelAllCGImageGeneration()
         }

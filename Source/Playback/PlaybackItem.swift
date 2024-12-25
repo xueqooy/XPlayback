@@ -5,8 +5,8 @@
 //  Created by xueqooy on 2024/12/2.
 //
 
-import XKit
 import UIKit
+import XKit
 
 /**
   Identify a playback item
@@ -17,7 +17,7 @@ public struct PlaybackItem: Hashable {
         case video
         case audio
     }
-    
+
     public let mediaType: MediaType
     public let contentString: String
     public let tag: String

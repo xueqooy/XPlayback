@@ -1,5 +1,5 @@
 //
-//  AudioResource.swift
+//  Resource.swift
 //  Playback
 //
 //  Created by xueqooy on 2024/12/16.
@@ -9,9 +9,8 @@
 import Foundation
 
 protocol Resource: RawRepresentable, CaseIterable where RawValue == String {
-    
-    var contentString: String { get}
-    
+    var contentString: String { get }
+
     var format: String? { get }
 }
 
@@ -20,17 +19,17 @@ extension Resource {
         switch self {
         case let value where value.rawValue.hasPrefix("local"):
             return Bundle.main.path(forResource: rawValue, ofType: format)!
-      
+
         default:
             return rawValue
         }
     }
-    
+
     var format: String? {
         switch self {
         case let value where value.rawValue.hasPrefix("local"):
             return value.rawValue.components(separatedBy: "_").last
-            
+
         default:
             let ext = (rawValue as NSString).pathExtension
             if ext.isEmpty {
@@ -40,11 +39,11 @@ extension Resource {
             }
         }
     }
-    
+
     var isVideo: Bool {
         Self.self == VideoResource.self
     }
-    
+
     var isAudio: Bool {
         Self.self == AudioResource.self
     }
@@ -56,7 +55,6 @@ enum AudioResource: String, Resource {
     case local_wav
     case remote_aac = "http://streams.videolan.org/streams/aac/01_James_Bond_Theme__Monty_Norman_Orchestra.aac"
 }
-
 
 enum VideoResource: String, Resource {
     case local_mp4

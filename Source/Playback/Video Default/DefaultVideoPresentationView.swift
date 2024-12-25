@@ -5,9 +5,9 @@
 //  Created by xueqooy on 2024/11/27.
 //
 
-import XUI
-import UIKit
 import PlaybackFoundation
+import UIKit
+import XUI
 
 public class DefaultVideoPresentationView: UIView, VideoPresentable {
     class CoverImageView: UIImageView {}
@@ -49,7 +49,7 @@ public class DefaultVideoPresentationView: UIView, VideoPresentable {
     private lazy var coverImageView = CoverImageView(contentMode: .scaleAspectFill, clipsToBounds: true)
         .settingHidden(true)
 
-    public override init(frame: CGRect) {
+    override public init(frame: CGRect) {
         super.init(frame: frame)
 
         backgroundColor = .black
@@ -66,7 +66,7 @@ public class DefaultVideoPresentationView: UIView, VideoPresentable {
         coverImageView.setImage(with: url)
     }
 
-    public override func layoutSubviews() {
+    override public func layoutSubviews() {
         super.layoutSubviews()
 
         guard let contentView, bounds.height > 0, presentationSize.height > 0 else { return }
@@ -89,7 +89,7 @@ public class DefaultVideoPresentationView: UIView, VideoPresentable {
         coverImageView.frame = contentView.frame
     }
 
-    public override func didAddSubview(_ subview: UIView) {
+    override public func didAddSubview(_ subview: UIView) {
         if subview === contentView {
             sendSubviewToBack(subview)
         }

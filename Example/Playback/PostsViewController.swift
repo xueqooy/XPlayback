@@ -5,11 +5,11 @@
 //  Created by xueqooy on 2022/12/20.
 //
 
-import XKit
+import Combine
 import Playback
 import SnapKit
 import UIKit
-import Combine
+import XKit
 
 enum PostContent {
     case text(String)
@@ -37,7 +37,7 @@ enum PostContent {
             return resource.format
         }
     }
-    
+
     var title: String {
         switch self {
         case .text:
@@ -48,7 +48,7 @@ enum PostContent {
             return resource.rawValue
         }
     }
-    
+
     var resource: (any Resource)? {
         switch self {
         case .text:
@@ -94,7 +94,7 @@ class PostsViewController: UITableViewController {
     ]
 
     private lazy var posts: [Post] = generatePosts()
-    
+
     private var viewStateObservation: AnyCancellable?
 
     static func instantiate() -> PostsViewController {
@@ -113,25 +113,25 @@ class PostsViewController: UITableViewController {
         tableView.register(TextPostCell.self, forCellReuseIdentifier: "Text")
         tableView.register(VideoPostCell.self, forCellReuseIdentifier: "Video")
         tableView.register(AudioPostCell.self, forCellReuseIdentifier: "Audio")
-        
+
         let reloadButtonItem = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(reloadPosts))
         navigationItem.rightBarButtonItem = reloadButtonItem
-                
+
         viewStateObservation = viewStatePublisher
             .dropFirst()
             .sink { [weak self] viewState in
                 guard let self, viewState == .willAppear else { return }
-                
+
                 self.reloadVisibleVideoCell()
             }
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        
+
         PlaybackService.shared.pauseAllPlayers()
     }
-    
+
     private func generatePosts() -> [Post] {
         (0 ..< 20).map { _ in
             let poster = posters.randomElement()!
@@ -139,12 +139,12 @@ class PostsViewController: UITableViewController {
             return Post(poster: poster, content: content)
         }
     }
-    
+
     @objc private func reloadPosts() {
         posts = generatePosts()
         tableView.reloadData()
     }
-    
+
     private func reloadVisibleVideoCell() {
         // Reload visible video cells to reattach player
         tableView.visibleCells
@@ -153,11 +153,10 @@ class PostsViewController: UITableViewController {
                 guard let cell = cell as? PostBaseCell, let currentPost = cell.currentPost else {
                     return
                 }
-                
+
                 cell.render(currentPost)
             }
     }
-    
 
     // MARK: - TableView Delegate & DataSource
 
@@ -188,8 +187,7 @@ class PostsViewController: UITableViewController {
         tableView.deselectRow(at: indexPath, animated: true)
 
         let post = posts[indexPath.row]
-        
-        
+
         if let resource = post.content.resource {
             let detailViewController = PlayerViewController.instantiate(resource: resource, postId: post.id)
             navigationController?.pushViewController(detailViewController, animated: true)

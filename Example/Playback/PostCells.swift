@@ -6,14 +6,13 @@
 //  Copyright © 2022 CocoaPods. All rights reserved.
 //
 
-import XKit
 import Playback
 import UIKit
+import XKit
 
 class PostBaseCell: UITableViewCell {
-    
     private(set) var currentPost: Post?
-    
+
     let stackView: UIStackView = {
         let stackView = UIStackView()
         stackView.layoutMargins = UIEdgeInsets(top: 20, left: 20, bottom: 20, right: 20)
@@ -57,7 +56,7 @@ class PostBaseCell: UITableViewCell {
     }
 
     func render(_ post: Post) {
-        self.currentPost = post
+        currentPost = post
         posterLabel.text = post.poster
     }
 }
@@ -99,7 +98,7 @@ class VideoPostCell: PostBaseCell {
         view.clipsToBounds = true
         return view
     }()
-     
+
     override func setupUI() {
         super.setupUI()
 
@@ -112,7 +111,7 @@ class VideoPostCell: PostBaseCell {
 
     override func render(_ post: Post) {
         super.render(post)
-        
+
         let item = PlaybackItem(mediaType: .video, contentString: post.content.contentString, tag: post.id)
         let hint = PlaybackHint(format: post.content.format, title: post.content.title)
 
@@ -124,7 +123,7 @@ class VideoPostCell: PostBaseCell {
 
 class AudioPostCell: PostBaseCell {
     private let containerView = UIView()
-     
+
     override func setupUI() {
         super.setupUI()
 
@@ -137,7 +136,7 @@ class AudioPostCell: PostBaseCell {
 
     override func render(_ post: Post) {
         super.render(post)
-        
+
         let item = PlaybackItem(mediaType: .audio, contentString: post.content.contentString, tag: post.id)
         let hint = PlaybackHint(format: post.content.format, title: post.content.title)
 

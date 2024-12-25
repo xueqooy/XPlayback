@@ -7,7 +7,7 @@
 
 public struct DefaultVideoPlayerPlugins: OptionSet, PlayerPluginSet {
     public static let all: DefaultVideoPlayerPlugins = [longPressGesture, tapGesture, panGesture, seekingPreview]
-    
+
     /// Long press to play fast forward
     public static let longPressGesture = DefaultVideoPlayerPlugins(rawValue: 1)
     /// Single tap to display/hide control, double tap to play/pause
@@ -16,7 +16,7 @@ public struct DefaultVideoPlayerPlugins: OptionSet, PlayerPluginSet {
     public static let panGesture = DefaultVideoPlayerPlugins(rawValue: 1 << 2)
     /// Show preview when seeking
     public static let seekingPreview = DefaultVideoPlayerPlugins(rawValue: 1 << 3)
-    
+
     public var rawValue: UInt
 
     public init(rawValue: UInt) {

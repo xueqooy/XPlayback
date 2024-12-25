@@ -6,9 +6,9 @@
 //
 
 import Combine
-import XKit
 import MobileVLCKit
 import UIKit
+import XKit
 
 public actor Thumbnailer {
     public enum CachePolicy {

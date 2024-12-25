@@ -6,9 +6,9 @@
 //
 
 import Combine
-import XKit
 import MediaPlayer
 import UIKit
+import XKit
 
 public class SystemVolumeController {
     public static let shared = SystemVolumeController()
@@ -56,7 +56,7 @@ public class SystemVolumeController {
 
         // Add a custom volume view to control the display of the system volume indicator
         UIApplication.shared.delegate?.window??.addSubview(volumeView)
-        
+
         var volumeSlider: UISlider?
         for view in volumeView.subviews {
             if let slider = view as? UISlider {

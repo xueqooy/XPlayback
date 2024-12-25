@@ -36,10 +36,10 @@ let package = Package(
         .target(
             name: "PlaybackFoundation",
             dependencies: [
-                "XKit", "MobileVLCKit"
+                "XKit", "MobileVLCKit",
             ],
             path: "Source/XPlayback"
-        )
+        ),
     ],
     swiftLanguageVersions: [.v5],
 )

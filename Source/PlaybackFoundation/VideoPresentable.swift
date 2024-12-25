@@ -12,6 +12,6 @@ public protocol VideoPresentable: UIView {
     var coverImage: UIImage? { get set }
     var isCoverHidden: Bool { get set }
     var contentView: UIView? { get set }
-    
+
     func loadCoverImage(from url: URL)
 }

@@ -7,8 +7,8 @@
 
 import AVFoundation
 import Combine
-import XKit
 import PlaybackFoundation
+import XKit
 
 public enum PlaybackStyle: Equatable {
     case inline
@@ -24,7 +24,7 @@ public enum PlaybackStyle: Equatable {
         }
     }
 }
- 
+
 /// A player that can play both audio and video from file or remote resources..
 public class HybridMediaPlayer: Player {
     public weak var containerView: UIView? {
@@ -50,7 +50,7 @@ public class HybridMediaPlayer: Player {
     public var hint: PlaybackHint? {
         didSet {
             engine.coverURL = hint?.coverURL
-            
+
             if engine.state == .idle, let duration = hint?.duration {
                 self.duration = duration
             }
@@ -59,7 +59,7 @@ public class HybridMediaPlayer: Player {
             }
         }
     }
-    
+
     public var playWhenReady: Bool {
         get { engine.playWhenReady }
         set { engine.playWhenReady = newValue }
@@ -70,12 +70,12 @@ public class HybridMediaPlayer: Player {
         get { fullscreenManager.orientationsForApplyingRotateTransform }
         set { fullscreenManager.orientationsForApplyingRotateTransform = newValue }
     }
-    
+
     public var shouldHideStatusBarForFullscreen: Bool {
         get { fullscreenManager.shouldHideStatusBar }
         set { fullscreenManager.shouldHideStatusBar = newValue }
     }
-    
+
     public var playbackStatePublisher: AnyPublisher<PlaybackState, Never> {
         $playbackState.didChange
     }
@@ -94,7 +94,9 @@ public class HybridMediaPlayer: Player {
     public private(set) var isMuted: Bool = false
 
     public private(set) var plugins = [PlayerPlugin]()
-    
+
+    public let multiQualityAssetController: MultiQualityAssetController?
+
     public let controlView: PlaybackControllable
 
     private var engine: PlaybackEngine
@@ -103,14 +105,19 @@ public class HybridMediaPlayer: Player {
     private let systemVolumeController = SystemVolumeController.shared
     private var observations = [AnyCancellable]()
 
-    public init(engine: PlaybackEngine, controlView: PlaybackControllable, pluginSet: PlayerPluginSet? = nil, containerView: UIView? = nil) {
+    public init(engine: PlaybackEngine, controlView: PlaybackControllable, pluginSet: PlayerPluginSet? = nil, qualityMenuProvider: QualityMenuProviding? = nil, containerView: UIView? = nil) {
         self.engine = engine
         self.controlView = controlView
         self.containerView = containerView
-        
+        multiQualityAssetController = if let qualityMenuProvider {
+            MultiQualityAssetController(menuProvider: qualityMenuProvider)
+        } else {
+            nil
+        }
+
         initialize(with: pluginSet)
     }
-    
+
     public func load(from url: URL, playWhenReady: Bool, initialTime: TimeInterval? = nil) {
         if url != self.url {
             engine.load(from: url, playWhenReady: playWhenReady, initialTime: initialTime)
@@ -122,7 +129,7 @@ public class HybridMediaPlayer: Player {
             }
         }
     }
-    
+
     public func play() {
         engine.play()
     }
@@ -134,27 +141,27 @@ public class HybridMediaPlayer: Player {
     public func stop() {
         engine.stop()
     }
-    
+
     public func seek(to time: TimeInterval) {
         engine.seek(to: time)
     }
-    
+
     public func seek(by seconds: TimeInterval) {
         engine.seek(by: seconds)
     }
-        
+
     public func setMuted(_ isMuted: Bool) {
         setSystemVolumeMuted(isMuted)
     }
-    
+
     public func setRate(_ rate: Float) {
         engine.rate = rate
     }
-    
+
     public func enterFullscreen() {
         fullscreenManager?.enterFullscreen()
     }
-    
+
     public func exitFullscreen() {
         fullscreenManager?.exitFullscreen()
     }
@@ -165,23 +172,23 @@ public class HybridMediaPlayer: Player {
 
     public func addPlugin(_ plugin: PlayerPlugin) {
         guard plugins.firstIndex(where: { $0 === plugin }) == nil else { return }
-        
+
         plugins.append(plugin)
         plugin.attach(to: self)
     }
-    
+
     public func removePlugin(_ plugin: PlayerPlugin) {
         guard let index = plugins.firstIndex(where: { $0 === plugin }) else { return }
-        
+
         plugin.detach()
         plugins.remove(at: index)
     }
-        
+
     // MARK: - Private
 
     private func initialize(with pluginSet: PlayerPluginSet?) {
         controlView.attach(to: self)
-        
+
         systemVolumeController.start()
         systemVolumeController.volumeChangedPublisher
             .sink { [weak self] in
@@ -206,13 +213,13 @@ public class HybridMediaPlayer: Player {
 
             self.handleFullscreenEvent($0)
         })
-        
+
         if let pluginSet {
             for plugin in pluginSet.createPlugins() {
                 addPlugin(plugin)
             }
         }
-        
+
         updateLayout()
     }
 
@@ -263,10 +270,10 @@ public class HybridMediaPlayer: Player {
     private func handleFullscreenEvent(_ event: FullscreenManager.Event) {
         switch event {
         case let .willEnter(rotationTransform):
-            self.style = .fullscreen(rotationTransform)
+            style = .fullscreen(rotationTransform)
 
         case .willExit:
-            self.style = .inline
+            style = .inline
 
         default:
             break
@@ -284,39 +291,5 @@ public class HybridMediaPlayer: Player {
                 systemVolumeController.volume = 0.5
             }
         }
-    }
-}
-
-
-// MARK: - Convenience
-
-public enum PlayerEngineType {
-    case av
-    case vlc
-}
-
-extension HybridMediaPlayer {
-    public static func defaultVideoPlayer(engineType: PlayerEngineType) -> HybridMediaPlayer {
-        let videoView = DefaultVideoPresentationView()
-        let controlView = DefaultVideoControlView()
-        let pluginSet = DefaultVideoPlayerPlugins.all
-        let engine: PlaybackEngine = switch engineType {
-        case .av:
-            AVPlaybackEngine(view: videoView)
-        case .vlc:
-            VLCPlaybackEngine(view: videoView)
-        }
-        return HybridMediaPlayer(engine: engine, controlView: controlView, pluginSet: pluginSet)
-    }
-    
-    public static func defaultAudioPlayer(engineType: PlayerEngineType) -> HybridMediaPlayer {
-        let controlView = DefaultAudioControlView()
-        let engine: PlaybackEngine = switch engineType {
-        case .av:
-            AVPlaybackEngine()
-        case .vlc:
-            VLCPlaybackEngine()
-        }
-        return HybridMediaPlayer(engine: engine, controlView: controlView)
     }
 }

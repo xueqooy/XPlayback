@@ -5,11 +5,11 @@
 //  Created by xueqooy on 2022/12/20.
 //
 
-import Foundation
-import XKit
-import WebKit
-import PlaybackFoundation
 import Combine
+import Foundation
+import PlaybackFoundation
+import WebKit
+import XKit
 
 /// Play embed video, e.g. youtube
 public class EmbedVideoPlayer: NSObject, Player {
@@ -80,12 +80,12 @@ public class EmbedVideoPlayer: NSObject, Player {
     public var playbackStatePublisher: AnyPublisher<PlaybackState, Never> {
         $playbackState.didChange
     }
-    
+
     @EquatableState
     public private(set) var playbackState: PlaybackState = .idle {
         didSet {
             guard oldValue != playbackState else { return }
-            
+
             Logs.info("Embed Video playback state: \(playbackState)", tag: "Playback")
         }
     }
@@ -188,14 +188,14 @@ public class EmbedVideoPlayer: NSObject, Player {
         }
         webView.evaluateJavaScript(script)
     }
-    
+
     public func enterFullscreen() {
         let script = Tool.generateVideoScript { video in
             "\(video).webkitEnterFullscreen()"
         }
         webView.evaluateJavaScript(script)
     }
-    
+
     public func exitFullscreen() {
         let script = Tool.generateVideoScript { video in
             "\(video).webkitExitFullscreen()"

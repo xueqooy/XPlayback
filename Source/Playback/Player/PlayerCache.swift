@@ -83,7 +83,7 @@ public class PlayerCache {
 
     public init(autoTrimInterval: TimeInterval = 3) {
         self.autoTrimInterval = autoTrimInterval
-        
+
         trimRecursively()
 
         NotificationCenter.default.addObserver(self, selector: #selector(appDidReceiveMemoryWarningNotification(_:)), name: UIApplication.didReceiveMemoryWarningNotification, object: nil)

@@ -1,14 +1,14 @@
 //
-//  LongPressGestureManager.swift
+//  LongPressGesturePlugin.swift
 //  Playback
 //
 //  Created by xueqooy on 2024/12/3.
 //
 
 import Combine
-import XUI
-import XKit
 import UIKit
+import XKit
+import XUI
 
 public class LongPressGesturePlugin: NSObject, PlayerPlugin {
     private(set) lazy var longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(Self.longPressGestureAction))
@@ -20,18 +20,18 @@ public class LongPressGesturePlugin: NSObject, PlayerPlugin {
 
     private var observation: AnyCancellable?
 
-    public override init() {
+    override public init() {
         super.init()
-        
+
         longPressGestureRecognizer.minimumPressDuration = 0.75
         longPressGestureRecognizer.delegate = self
     }
-    
+
     public func attach(to player: HybridMediaPlayer) {
         detach()
 
         self.player = player
-        
+
         let controlView = player.controlView
         self.controlView = controlView
         controlView.addGestureRecognizer(longPressGestureRecognizer)

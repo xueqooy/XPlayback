@@ -1,5 +1,5 @@
 //
-//  Assets.swift
+//  LibraryAssets.swift
 //  Playback
 //
 //  Created by xueqooy on 2024/12/2.
@@ -8,7 +8,7 @@
 import Foundation
 import XKit
 
-class Assets {
+class LibraryAssets {
     private static var bundle: Bundle { return Bundle(for: self) }
 
     private static let assetsBundle: Bundle = {

@@ -6,9 +6,9 @@
 //
 
 import Combine
-import XUI
-import XKit
 import UIKit
+import XKit
+import XUI
 
 public class SeekingPreviewPlugin: PlayerPlugin {
     private var previewThumbnailTask: Task<Void, Never>?
@@ -32,13 +32,13 @@ public class SeekingPreviewPlugin: PlayerPlugin {
     }
 
     public func attach(to player: HybridMediaPlayer) {
-        self.detach()
-        
+        detach()
+
         let controlView = player.controlView
-        
+
         self.player = player
         self.controlView = controlView
-        
+
         controlView.pendingTimeToSeekUpdatedPublisher
             .sink { [weak self] in
                 // Show preview when seeking
@@ -53,7 +53,7 @@ public class SeekingPreviewPlugin: PlayerPlugin {
             }
             .store(in: &observations)
     }
-    
+
     public func detach() {
         observations.removeAll(keepingCapacity: true)
         previewThumbnailTask?.cancel()
@@ -61,8 +61,7 @@ public class SeekingPreviewPlugin: PlayerPlugin {
         player = nil
         controlView = nil
     }
-    
-    
+
     private func showPreviewView(with pendingTimeToSeek: TimeInterval) {
         guard let controlView, let player else { return }
 

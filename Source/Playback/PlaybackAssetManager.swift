@@ -1,5 +1,5 @@
 //
-//  VideoURLParserManager.swift
+//  PlaybackAssetManager.swift
 //  Playback
 //
 //  Created by xueqooy on 2022/12/19.
@@ -8,41 +8,77 @@
 import Foundation
 import XKit
 
-public enum PlaybackURLType {
-    case embed // the resource displayed in web
-    case file // the local file resource
-    case network // the network resource
+public enum PlaybackAsset: Equatable {
+    // The resource displayed in web
+    case embed(URL)
+
+    // The local file resource
+    case local(URL)
+
+    // The network resource
+    case network(URL)
+
+    // The local file resource with multiple quality
+    case localWithMultiQuality(MultiQualityAsset)
+
+    // The network resource with multiple quality
+    case networkWithMultiQuality(MultiQualityAsset)
+
+    public var url: URL {
+        switch self {
+        case let .embed(url), let .local(url), let .network(url):
+            return url
+        case let .localWithMultiQuality(asset), let .networkWithMultiQuality(asset):
+            return asset.defaultItem.url
+        }
+    }
+
+    public var mutiQualityAsset: MultiQualityAsset? {
+        switch self {
+        case let .localWithMultiQuality(asset), let .networkWithMultiQuality(asset):
+            return asset
+        default:
+            return nil
+        }
+    }
+
+    public var isMultiQuality: Bool {
+        switch self {
+        case .localWithMultiQuality, .networkWithMultiQuality:
+            return true
+        default:
+            return false
+        }
+    }
 }
 
-public struct PlaybackURLResult {
-    public let url: URL
-    public let type: PlaybackURLType
+public struct PlaybackAssetResult {
+    public let asset: PlaybackAsset
     public let expiredDate: Date?
     public let shouldCache: Bool
-    
-    public init(url: URL, type: PlaybackURLType, expiredDate: Date? = nil, shouldCache: Bool = true) {
-        self.url = url
-        self.type = type
+
+    public init(asset: PlaybackAsset, expiredDate: Date? = nil, shouldCache: Bool = true) {
+        self.asset = asset
         self.expiredDate = expiredDate
         self.shouldCache = shouldCache
     }
 }
 
 public protocol PlaybackItemParseable {
-    func parseItem(_ item: PlaybackItem) async -> PlaybackURLResult?
+    func parseItem(_ item: PlaybackItem) async -> PlaybackAssetResult?
 }
 
 /**
  Parse and memory cache resource URL.
  */
-public class PlaybackURLManager: NSObject {
+public class PlaybackAssetManager: NSObject {
     private class Cache {
-        private let queue = Queue(label: "Playback.PlaybackURLManager.Cache", isConcurrent: true)
-        
-        private var dictionary = [String: PlaybackURLResult]()
+        private let queue = Queue(label: "Playback.PlaybackAssetManager.Cache", isConcurrent: true)
+
+        private var dictionary = [String: PlaybackAssetResult]()
 
         /// Return nil if url has expired
-        func result(for item: PlaybackItem) -> PlaybackURLResult? {
+        func result(for item: PlaybackItem) -> PlaybackAssetResult? {
             queue.sync {
                 let key = key(for: item)
                 guard let result = dictionary[key] else {
@@ -58,10 +94,10 @@ public class PlaybackURLManager: NSObject {
             }
         }
 
-        func setResult(_ result: PlaybackURLResult, for item: PlaybackItem) {
+        func setResult(_ result: PlaybackAssetResult, for item: PlaybackItem) {
             queue.execute(.asyncBarrier) { [weak self] in
                 guard let self else { return }
-                
+
                 dictionary[key(for: item)] = result
             }
         }
@@ -69,17 +105,17 @@ public class PlaybackURLManager: NSObject {
         func clear() {
             queue.execute(.asyncBarrier) { [weak self] in
                 guard let self else { return }
-                
+
                 self.dictionary.removeAll()
             }
         }
-        
+
         private func key(for item: PlaybackItem) -> String {
             item.mediaType.rawValue + "-" + item.contentString
         }
     }
 
-    public static let shared = PlaybackURLManager()
+    public static let shared = PlaybackAssetManager()
 
     /// Additional parsers for custom URL parsing
     public var additionalParsers: [PlaybackItemParseable] = [] {
@@ -88,19 +124,19 @@ public class PlaybackURLManager: NSObject {
         }
     }
 
-    private let fileParser = FileURLParser()
-    private let embedParser = EmbedVideoURLParser()
+    private let localFileParser = LocalFileAssetParser()
+    private let embedParser = EmbedAssetParser()
 
     private let cache = Cache()
 
-    public func parse(_ item: PlaybackItem) async -> PlaybackURLResult? {
+    public func parse(_ item: PlaybackItem) async -> PlaybackAssetResult? {
         // Read from cache first
         if let cachedResult = cache.result(for: item) {
             return cachedResult
         }
 
         // Parse local file URL
-        if let result = await fileParser.parseItem(item) {
+        if let result = await localFileParser.parseItem(item) {
             cache.setResult(result, for: item)
             return result
         }
@@ -120,7 +156,7 @@ public class PlaybackURLManager: NSObject {
         }
 
         if let url = URL(string: item.contentString) {
-            let result = PlaybackURLResult(url: url, type: .network)
+            let result = PlaybackAssetResult(asset: .network(url))
             cache.setResult(result, for: item)
             return result
         }
@@ -129,34 +165,34 @@ public class PlaybackURLManager: NSObject {
     }
 }
 
-// MARK: - LocalVideoURLParser
+// MARK: - LocalVideoAssetParser
 
-class FileURLParser: PlaybackItemParseable {
-    func parseItem(_ item: PlaybackItem) async -> PlaybackURLResult? {
+class LocalFileAssetParser: PlaybackItemParseable {
+    func parseItem(_ item: PlaybackItem) async -> PlaybackAssetResult? {
         let contentString = item.contentString
         if let url = URL(string: contentString), url.isFileURL {
-            return PlaybackURLResult(url: url, type: .file, expiredDate: nil)
+            return PlaybackAssetResult(asset: .local(url))
         }
 
         if contentString.hasPrefix("/"), let url = URL(string: "file://\(contentString)") {
-            return PlaybackURLResult(url: url, type: .file, expiredDate: nil)
+            return PlaybackAssetResult(asset: .local(url))
         }
 
         return nil
     }
 }
 
-// MARK: - EmbedURLParser
+// MARK: - EmbedAssetParser
 
-class EmbedVideoURLParser: PlaybackItemParseable {
-    func parseItem(_ item: PlaybackItem) async -> PlaybackURLResult? {
+class EmbedAssetParser: PlaybackItemParseable {
+    func parseItem(_ item: PlaybackItem) async -> PlaybackAssetResult? {
         let contentString = item.contentString
         if let youtubeURL = parseYoutubeEmbed(from: contentString) {
-            return PlaybackURLResult(url: youtubeURL, type: .embed, expiredDate: nil)
+            return PlaybackAssetResult(asset: .embed(youtubeURL), expiredDate: nil)
         }
 
         if let httpURL = parseHttpEmbed(from: contentString) {
-            return PlaybackURLResult(url: httpURL, type: .embed, expiredDate: nil)
+            return PlaybackAssetResult(asset: .embed(httpURL), expiredDate: nil)
         }
 
         return nil
