@@ -1,14 +1,14 @@
 //
-//  TapGesturePlugin.swift
+//  TapGestureManager.swift
 //  Playback
 //
 //  Created by xueqooy on 2024/12/2.
 //
 
 import Combine
-import UIKit
-import XKit
 import XUI
+import XKit
+import UIKit
 
 public class TapGesturePlugin: NSObject, PlayerPlugin {
     private var isControlDisplaying: Bool {
@@ -20,7 +20,7 @@ public class TapGesturePlugin: NSObject, PlayerPlugin {
     private var isStartVideoButtonHidden: Bool {
         startVideoButton.isHidden
     }
-
+    
     private lazy var startVideoButton = Button(image: LibraryAssets.image(named: "play.circle"))
     private lazy var tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(Self.tapGestureAction))
     private lazy var doubleTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(Self.doubleTapGestureAction))
@@ -30,9 +30,9 @@ public class TapGesturePlugin: NSObject, PlayerPlugin {
     private weak var controlView: PlaybackControllable?
     private var observations = [AnyCancellable]()
 
-    override public init() {
+    public override init() {
         super.init()
-
+        
         doubleTapGestureRecognizer.numberOfTapsRequired = 2
         // Add a double tap gesture on the cell and set delaysTouchesBegan to true to give the gesture a chance to be responded to
         doubleTapGestureRecognizer.delaysTouchesBegan = true
@@ -43,18 +43,21 @@ public class TapGesturePlugin: NSObject, PlayerPlugin {
             self?.startVideo()
         }
     }
-
+    
     public func attach(to player: HybridMediaPlayer) {
         detach()
-
+        
         let controlView = player.controlView
-
+        
         self.player = player
         self.controlView = controlView
 
         controlView.addGestureRecognizer(doubleTapGestureRecognizer)
         controlView.addGestureRecognizer(tapGestureRecognizer)
+        
+        startVideoButton.isHidden = false
         controlView.addSubview(startVideoButton)
+        
         controlView.pendingTimeToSeekUpdatedPublisher
             .sink { [weak self] _ in
                 guard let self else { return }
@@ -81,12 +84,8 @@ public class TapGesturePlugin: NSObject, PlayerPlugin {
                 guard let self else { return }
 
                 // Show start view button when playback state is idle or ready, otherwise hide it and show controls
-
                 switch $0 {
                 case .idle, .loading, .ready:
-                    if self.player?.style.isFullscreen == false {
-                        self.startVideoButton.isHidden = false
-                    }
                     self.doubleTapGestureRecognizer.isEnabled = false
                     self.hideViews(animated: false)
 
@@ -108,10 +107,10 @@ public class TapGesturePlugin: NSObject, PlayerPlugin {
             .sink { [weak self] _ in
                 guard let self else { return }
 
-                self.updateStartVideoButtonLayout()
+                self.updateLayout()
             }
             .store(in: &observations)
-
+        
         player.multiQualityAssetController?.menuVisibilityPublisher
             .sink { [weak self] in
                 guard let self else { return }
@@ -123,23 +122,23 @@ public class TapGesturePlugin: NSObject, PlayerPlugin {
             }
             .store(in: &observations)
     }
-
+    
     public func detach() {
         stopAutoHideTimer()
         observations.removeAll(keepingCapacity: true)
         startVideoButton.removeFromSuperview()
-
+        
         if let controlView {
             controlView.removeGestureRecognizer(doubleTapGestureRecognizer)
             controlView.removeGestureRecognizer(tapGestureRecognizer)
             controlView.allEdgeViews.forEach { $0.alpha = 1 }
         }
-
+    
         controlView = nil
         player = nil
     }
 
-    private func updateStartVideoButtonLayout() {
+    private func updateLayout() {
         guard let player else { return }
 
         startVideoButton.snp.remakeConstraints { make in
@@ -156,7 +155,7 @@ public class TapGesturePlugin: NSObject, PlayerPlugin {
     private func startAutoHideTimer() {
         autoHideTimer = .init(interval: 4.0) { [weak self] in
             guard let self else { return }
-
+            
             self.hideViews()
         }
 
@@ -186,7 +185,7 @@ public class TapGesturePlugin: NSObject, PlayerPlugin {
                 changed = true
             }
         }
-
+        
         if let player, changed {
             player.shouldHideStatusBarForFullscreen = false
         }
@@ -196,7 +195,7 @@ public class TapGesturePlugin: NSObject, PlayerPlugin {
         stopAutoHideTimer()
 
         var changed = false
-
+        
         for view in controlView?.allEdgeViews ?? [] {
             if view.alpha == 1 {
                 view.alpha = 0
