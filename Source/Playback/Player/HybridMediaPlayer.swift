@@ -109,10 +109,11 @@ public class HybridMediaPlayer: Player {
         self.engine = engine
         self.controlView = controlView
         self.containerView = containerView
-        multiQualityAssetController = if let qualityMenuProvider {
-            MultiQualityAssetController(menuProvider: qualityMenuProvider)
+        if let qualityMenuProvider {
+            multiQualityAssetController = MultiQualityAssetController(menuProvider: qualityMenuProvider)
+            multiQualityAssetController!.attach(to: self)
         } else {
-            nil
+            multiQualityAssetController = nil
         }
 
         initialize(with: pluginSet)
@@ -143,10 +144,12 @@ public class HybridMediaPlayer: Player {
     }
 
     public func seek(to time: TimeInterval) {
+        currentTime = time
         engine.seek(to: time)
     }
 
     public func seek(by seconds: TimeInterval) {
+        currentTime = engine.currentTime + seconds
         engine.seek(by: seconds)
     }
 
