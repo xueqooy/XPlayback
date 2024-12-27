@@ -4,15 +4,17 @@ XPlayback is a hybrid media player designed to play audio, video, and embedded v
 
 ## Features
 
-- **Audio and Video Playback:** Play audio and video from files or network resources.
-- **Embedded Video playback:** Play embedded videos from platforms like YouTube.
-- **Customizable Engine:** Modify the playback engine to suit your needs.
-- **Customizable Control Layver:** Tailor the control interface to your preferences.
-- **Plugin Architecture:** Extend functionality with plugins.
-- **Screen Rotation Adaptation:** Automatically adapt to screen orientation changes.
-- **Gesture Controls:** Utilize single tap, double tap, long press, and drag gestures for intuitive control (Play/Pause, Fast forward, Seek and Preview, Birghtness, Volume).
-- **Fullscreen Playback:** Enjoy media in fullscreen mode.
-- **Seeking Video Preview:** Preview video thumbnails while seeking.
+- **▶️ Audio and Video Playback**
+- **📹 Embedded Video playback** (youtube embed)
+- **⚙️ Customizable Engine**
+- **🕹️ Customizable Control Layer**
+- **🔌 Plugin Architecture**
+- **📱 Screen Rotation Adaptation**
+- **👆🏻 Gesture Controls** 
+- **🖥️ Fullscreen Playback**
+- **🖼️ Seeking Video Preview**
+- **🎶 Multi-quality Asset**
+- **⚒️ Player reuse mechanism**
 
 ## Usage
 
