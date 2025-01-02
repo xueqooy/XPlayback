@@ -50,10 +50,16 @@ public class HybridMediaPlayer: Player {
     public var hint: PlaybackHint? {
         didSet {
             engine.coverURL = hint?.coverURL
-
-            if engine.state == .idle, let duration = hint?.duration {
-                self.duration = duration
+            
+            if engine.state == .idle {
+                if let duration = hint?.duration {
+                    self.duration = duration
+                }
+                if let time = hint?.time {
+                    self.currentTime = time
+                }
             }
+            
             if let time = hint?.time {
                 engine.seek(to: time)
             }
